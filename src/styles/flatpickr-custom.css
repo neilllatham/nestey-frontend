@@ -1,0 +1,150 @@
+/* ============================
+   FINAL NESTEY FLATPICKR (WIDER VERSION)
+============================ */
+.flatpickr-calendar {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07) !important;
+  border: 1px solid var(--gray-200) !important;
+  font-family: Inter, system-ui, sans-serif;
+  width: 340px !important;           /* ⬅️ wider for perfect 7 columns */
+  font-size: 0.85rem;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Header (month + year) */
+.flatpickr-months {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0.35rem 0.75rem;
+}
+
+.flatpickr-current-month {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  line-height: 1;
+}
+
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  cursor: pointer;
+  color: var(--gray-600);
+  font-size: 1.1rem;
+  padding: 0.25rem;
+  transition: color 0.2s ease;
+}
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  color: var(--blue-primary);
+}
+
+/* Weekday headers */
+.flatpickr-weekdays {
+  border-bottom: 1px solid var(--gray-200);
+  margin-bottom: 0.2rem;
+}
+.flatpickr-weekday {
+  color: var(--gray-600);
+  font-weight: 600;
+  font-size: 0.72rem;
+  padding: 0.3rem 0;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* Days grid */
+.flatpickr-days {
+  padding: 0.4rem 0.6rem;
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  overflow: visible !important;     /* ✅ allow highlights to extend fully */
+}
+
+/* Day cells */
+.flatpickr-day {
+  border-radius: 8px !important;
+  height: 36px !important;
+  width: 100% !important;
+  line-height: 36px !important;
+  font-size: 0.9rem !important;
+  text-align: center;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+  box-sizing: border-box;            /* ✅ ensures padding/borders don’t push width */
+}
+
+.flatpickr-day {
+  border-radius: 8px !important;
+  height: 36px !important;           /* ⬅️ slightly taller for even spacing */
+  width: 100% !important;
+  line-height: 36px !important;
+  font-size: 0.9rem !important;      /* ⬅️ readable but balanced */
+  text-align: center;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+}
+
+.flatpickr-day:hover {
+  background: var(--blue-light);
+  color: var(--gray-900);
+}
+
+.flatpickr-day.today {
+  border: 1px solid var(--blue-primary);
+  color: var(--blue-primary);
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--blue-primary);
+  color: #fff !important;
+  border: none !important;
+}
+
+.flatpickr-day.inRange {
+  background: var(--blue-light);
+  color: var(--gray-900);
+}
+
+/* Year number input */
+.numInputWrapper input {
+  font-size: 0.8rem;
+  height: 22px;
+  line-height: 22px;
+}
+
+/* Input field styling */
+.flatpickr-input {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
+}
+
+/* Responsive adjustment for smaller screens */
+@media (max-width: 600px) {
+  .flatpickr-calendar {
+    width: 300px !important;       /* slightly smaller for mobile */
+  }
+  .flatpickr-day {
+    height: 30px !important;
+    line-height: 30px !important;
+    font-size: 0.85rem !important;
+  }
+}

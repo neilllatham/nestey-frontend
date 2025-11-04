@@ -538,3 +538,89 @@ body {
   border: 2px solid var(--blue-primary);
   font-weight: 700;
 }
+
+/* --- Compact Nestey Flatpickr --- */
+.flatpickr-calendar {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07) !important;
+  border: 1px solid var(--gray-200) !important;
+  font-family: Inter, system-ui, sans-serif;
+  width: 250px !important;
+  font-size: 0.85rem;
+}
+
+/* Header */
+.flatpickr-months {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+  padding: 0.25rem 0.5rem;
+}
+
+.flatpickr-current-month {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Arrows */
+.flatpickr-prev-month,
+.flatpickr-next-month {
+  cursor: pointer;
+  color: var(--gray-600);
+  font-size: 1rem;
+  padding: 0.25rem;
+  transition: color 0.2s ease;
+}
+.flatpickr-prev-month:hover,
+.flatpickr-next-month:hover {
+  color: var(--blue-primary);
+}
+
+/* Weekdays */
+.flatpickr-weekday {
+  color: var(--gray-600);
+  font-weight: 600;
+  font-size: 0.7rem;
+}
+
+/* Days */
+.flatpickr-day {
+  border-radius: 6px !important;
+  height: 26px;
+  width: 26px;
+  line-height: 26px;
+  margin: 1px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.flatpickr-day:hover {
+  background: var(--blue-light);
+  color: var(--gray-900);
+}
+.flatpickr-day.today {
+  border: 1px solid var(--blue-primary);
+  color: var(--blue-primary);
+}
+.flatpickr-day.selected {
+  background: var(--blue-primary);
+  color: #fff !important;
+  border: none !important;
+}
+.flatpickr-day.inRange {
+  background: var(--blue-light);
+  color: var(--gray-900);
+}
+
+/* Input field consistency */
+.flatpickr-input {
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+}
