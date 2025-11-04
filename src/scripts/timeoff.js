@@ -145,4 +145,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Initial load
   await Promise.all([loadRequests(), loadBalances()]);
+  
+  // Listen for updates from chatbot
+  window.addEventListener('timeoff-updated', async () => {
+    console.info('[timeoff] Received update notification, refreshing...');
+    await Promise.all([loadRequests(), loadBalances()]);
+  });
 });

@@ -1,0 +1,19 @@
+Loading data as an employee
+
+To switch from employee 2 to employee 5, you only need to change two lines in timeoff.js:
+
+Read timeoff.js, lines 52 to 58
+
+Read timeoff.js, lines 120 to 130
+
+Here are the exact locations in timeoff.js:
+
+Line 56: Change const employeeId = 2; to const employeeId = 5;
+Line 128: Change employee_id: 2, to employee_id: 5,
+
+That's it! Both lines have a TODO comment showing where the hardcoded employee ID is used:
+
+Line 56 controls which employee's balances are loaded
+Line 128 controls which employee submits the time off request
+Once you change both 2 to 5, reload the page and you'll see employee 5's balances and any new requests will be created for employee 5.
+

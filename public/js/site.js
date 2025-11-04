@@ -23,18 +23,154 @@ function addMsg(type, text) {
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-function handleIntent(text) {
+// Parse natural language dates from user message
+function parseDateRange(text) {
   const msg = text.toLowerCase();
-  if (msg.includes("pto") || msg.includes("time off")) {
-    addMsg("ai", "Sure! You can manage PTO on the Time Off page.");
-  } else if (msg.includes("benefit")) {
+  const months = {
+    jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2,
+    apr: 3, april: 3, may: 4, jun: 5, june: 5, jul: 6, july: 6,
+    aug: 7, august: 7, sep: 8, september: 8, oct: 9, october: 9,
+    nov: 10, november: 10, dec: 11, december: 11
+  };
+
+  // Match patterns like "Dec 8 through Dec 11" or "book December 8-11"
+  const throughPattern = /(\w+)\s+(\d+)\s+(?:through|to|-)\s+(?:(\w+)\s+)?(\d+)/i;
+  const match = msg.match(throughPattern);
+  
+  if (match) {
+    const startMonth = months[match[1].toLowerCase()];
+    const startDay = parseInt(match[2]);
+    const endMonth = match[3] ? months[match[3].toLowerCase()] : startMonth;
+    const endDay = parseInt(match[4]);
+    
+    if (startMonth !== undefined && endMonth !== undefined) {
+      const year = new Date().getFullYear();
+      const startDate = new Date(year, startMonth, startDay);
+      const endDate = new Date(year, endMonth, endDay);
+      
+      // Format as YYYY-MM-DD for API
+      return {
+        start: startDate.toISOString().split('T')[0],
+        end: endDate.toISOString().split('T')[0],
+        startDisplay: startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        endDisplay: endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      };
+    }
+  }
+  
+  return null;
+}
+
+// Submit time off request via API
+async function submitTimeOffRequest(startDate, endDate, type = 'PTO') {
+  try {
+    const res = await fetch('http://localhost:3001/api/timeoff', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        employee_id: 2, // TODO: Replace with actual employee ID
+        type,
+        start_date: startDate,
+        end_date: endDate
+      })
+    });
+    
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to submit request');
+    }
+    
+    return await res.json();
+  } catch (err) {
+    console.error('Time off request failed:', err);
+    throw err;
+  }
+}
+
+// Get PTO balance
+async function getPTOBalance() {
+  try {
+    const res = await fetch('http://localhost:3001/api/timeoff/balance?employee_id=2');
+    if (!res.ok) throw new Error('Failed to fetch balance');
+    const { summary } = await res.json();
+    return summary;
+  } catch (err) {
+    console.error('Balance fetch failed:', err);
+    return null;
+  }
+}
+
+async function handleIntent(text) {
+  const msg = text.toLowerCase();
+  
+  // Handle time off booking
+  if (msg.includes("book") && (msg.includes("time off") || msg.includes("pto") || /\w+\s+\d+/.test(msg))) {
+    const dates = parseDateRange(text);
+    
+    if (dates) {
+      addMsg("ai", `Got it! Booking time off from ${dates.startDisplay} to ${dates.endDisplay}...`);
+      
+      try {
+        const result = await submitTimeOffRequest(dates.start, dates.end);
+        addMsg("ai", `✅ Your time off request has been submitted! Request ID: ${result.request_id}. Status: ${result.status}.`);
+        
+        // Notify Time Off page to refresh
+        window.dispatchEvent(new CustomEvent('timeoff-updated'));
+      } catch (err) {
+        addMsg("ai", `❌ Sorry, I couldn't submit your request: ${err.message}`);
+      }
+    } else {
+      addMsg("ai", "I didn't catch those dates. Try something like: 'book Dec 8 through Dec 11'");
+    }
+    return;
+  }
+  
+  // Handle PTO used inquiry
+  if (msg.includes("used") && (msg.includes("vacation") || msg.includes("pto"))) {
+    addMsg("ai", "Let me check how much PTO you've used this year...");
+    const balance = await getPTOBalance();
+    if (balance && balance.PTO) {
+      const used = balance.PTO.total_used || 0;
+      addMsg("ai", `You've used ${used} days of PTO in ${new Date().getFullYear()}.`);
+    } else {
+      addMsg("ai", "Sorry, I couldn't fetch your PTO usage right now.");
+    }
+    return;
+  }
+
+  // Handle PTO balance inquiry
+  if (msg.includes("balance") || msg.includes("how much") || msg.includes("how many")) {
+    addMsg("ai", "Let me check your balance...");
+    const balance = await getPTOBalance();
+    
+    if (balance) {
+      const parts = [];
+      if (balance.PTO) parts.push(`PTO: ${balance.PTO.total_remaining} days`);
+      if (balance['Sick Leave']) parts.push(`Sick Leave: ${balance['Sick Leave'].total_remaining} days`);
+      if (balance['Floating Holiday']) parts.push(`Floating Holiday: ${balance['Floating Holiday'].total_remaining} days`);
+      
+      addMsg("ai", `Your current balances:\n${parts.join('\n')}`);
+    } else {
+      addMsg("ai", "Sorry, I couldn't fetch your balance right now.");
+    }
+    return;
+  }
+  
+  // Handle pending approvals
+  if (msg.includes("pending") || msg.includes("approval")) {
+    addMsg("ai", "You can view pending approvals on the Time Off page.");
+    return;
+  }
+  
+  // Other intents
+  if (msg.includes("benefit")) {
     addMsg("ai", "You can view benefits on the Benefits page.");
   } else if (msg.includes("goal")) {
     addMsg("ai", "Goals are tracked on the Goals page.");
   } else if (msg.includes("personal")) {
     addMsg("ai", "Update personal info under the Personal section.");
   } else {
-    addMsg("ai", "I'll be able to do that once I'm connected to the backend!");
+    addMsg("ai", "I can help you:\n• Book time off (try: 'book Dec 8 through Dec 11')\n• Check your PTO balance\n• View pending approvals");
   }
 }
 
