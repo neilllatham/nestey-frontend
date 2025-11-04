@@ -67,7 +67,10 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
           style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
         >
           <label for="leaveType">Type</label>
-          <select id="leaveType" class="styled-select">
+          <select
+            id="leaveType"
+            style="padding:.75rem 1rem;border:1px solid var(--gray-200);border-radius:10px;"
+          >
             <option>PTO</option>
             <option>Sick</option>
             <option>Floating Holiday</option>
@@ -146,6 +149,9 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
     </div>
   </section>
 
-  <!-- ✅ Include Litepicker instead of Flatpickr -->
+  <!-- ✅ Correct way to include Flatpickr -->
   <script type="module" src="/src/scripts/datepickers.js"></script>
+
+  <!-- ✅ Correct way to include dropdown -->
+  <script type="module" src="/src/scripts/choices.js"></script>
 </DefaultLayout>
