@@ -1,0 +1,138 @@
+---
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+---
+
+<DefaultLayout title="Time Off">
+  <section class="workspace-header">
+    <h1>Time Off</h1>
+  </section>
+
+  <section class="workspace-content">
+    <!-- BALANCE SUMMARY -->
+    <div class="card" style="grid-column: span 12;">
+      <h3>Balances</h3>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem;">
+        <div class="kpi" style="flex:1;min-width:180px;">
+          <span>PTO</span><span class="value">13 days</span>
+        </div>
+        <div class="kpi" style="flex:1;min-width:180px;">
+          <span>Sick</span><span class="value">6 days</span>
+        </div>
+        <div class="kpi" style="flex:1;min-width:180px;">
+          <span>Floating Holiday</span><span class="value">2 days</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REQUEST FORM -->
+    <div class="card" style="grid-column: span 12;">
+      <h3>Request Time Off</h3>
+      <form
+        id="timeoffForm"
+        style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:.5rem;"
+      >
+        <div
+          class="kpi"
+          style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
+        >
+          <label for="startDate">From</label>
+          <input
+            type="date"
+            id="startDate"
+            required
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
+          />
+        </div>
+        <div
+          class="kpi"
+          style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
+        >
+          <label for="endDate">To</label>
+          <input
+            type="date"
+            id="endDate"
+            required
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
+          />
+        </div>
+        <div
+          class="kpi"
+          style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
+        >
+          <label for="leaveType">Type</label>
+          <select
+            id="leaveType"
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
+          >
+            <option>PTO</option>
+            <option>Sick</option>
+            <option>Floating Holiday</option>
+          </select>
+        </div>
+        <div
+          class="kpi"
+          style="flex:2;min-width:250px;display:flex;flex-direction:column;gap:.3rem;"
+        >
+          <label for="reason">Reason</label>
+          <input
+            type="text"
+            id="reason"
+            placeholder="Optional"
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
+          />
+        </div>
+        <div style="display:flex;align-items:flex-end;">
+          <button
+            type="submit"
+            class="pill"
+            style="padding:.7rem 1.5rem;font-weight:600;">Submit Request</button
+          >
+        </div>
+      </form>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="card" style="grid-column: span 7;">
+      <h3>Calendar</h3>
+      <div id="calendar" class="calendar">
+        <div class="cal-header"><strong>November 2025</strong></div>
+        <div class="cal-weekdays">
+          <div class="weekday">Sun</div>
+          <div class="weekday">Mon</div>
+          <div class="weekday">Tue</div>
+          <div class="weekday">Wed</div>
+          <div class="weekday">Thu</div>
+          <div class="weekday">Fri</div>
+          <div class="weekday">Sat</div>
+        </div>
+        <div class="cal-grid">
+          <!-- days rendered dynamically by site.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- UPCOMING REQUESTS -->
+    <div class="card" style="grid-column: span 5;">
+      <h3>Upcoming Requests</h3>
+      <ul class="styled-requests" id="requestsList">
+        <li class="request-item">
+          <div class="req-dates">Dec 24 2025</div>
+          <div class="req-meta">
+            <span class="type-pill">PTO</span>
+            <span class="status-badge" style="background:#EDCB74;">Pending</span
+            >
+          </div>
+        </li>
+        <li class="request-item">
+          <div class="req-dates">Nov 15 2025</div>
+          <div class="req-meta">
+            <span class="type-pill">Sick</span>
+            <span class="status-badge" style="background:var(--blue-accent);"
+              >Approved</span
+            >
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+</DefaultLayout>

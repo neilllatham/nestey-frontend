@@ -1,0 +1,32 @@
+<div class="ai-header">
+  <h3>Nestey Chat</h3>
+</div>
+
+<div class="chat-window" id="chatWindow">
+  <div class="chat-message ai">
+    <div class="avatar">🤖</div>
+    <div class="bubble ai-bubble">
+      Hi! I can help with PTO, benefits, or approvals.<br />
+      Try one of these:
+      <div class="suggestions">
+        <button class="pill" data-say="Show my pending approvals"
+          >Pending approvals</button
+        >
+        <button class="pill" data-say="Request time off">Book time off</button>
+        <button class="pill" data-say="What’s my PTO balance?"
+          >PTO balance</button
+        >
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="chat-input-bar">
+  <input
+    id="chatInput"
+    type="text"
+    placeholder="Type a request…"
+    autocomplete="off"
+  />
+  <button id="sendBtn">Send</button>
+</footer>
