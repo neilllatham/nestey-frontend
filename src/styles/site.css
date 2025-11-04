@@ -375,6 +375,18 @@ body {
   transition: background 0.2s, transform 0.1s;
 }
 
+/* Make sure day cells are visually consistent and visible in each column */
+.cal-grid {
+  grid-auto-rows: 44px; /* ensure consistent row height */
+}
+
+.cal-grid .day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+}
+
 .day:hover {
   background: var(--blue-light);
   transform: scale(1.05);
@@ -394,6 +406,43 @@ body {
   border: 2px solid var(--blue-primary);
   font-weight: 700;
 }
+
+/* ============================
+   FORMS: Styled select to match inputs
+   ============================ */
+.styled-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-200);
+  border-radius: 10px;
+  background: #fff url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 7l5 5 5-5' fill='none' stroke='%234b4f56' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 0.9rem center/1em auto;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  outline: none;
+  color: var(--gray-900);
+}
+
+.styled-select:focus {
+  border-color: var(--blue-primary);
+  box-shadow: 0 0 0 4px rgba(55, 102, 157, 0.08);
+}
+
+/* Ensure select matches input height and alignment in flex containers */
+.kpi .styled-select {
+  width: 100%;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* small touch: reduce native outline in Firefox when focused */
+select:-moz-focusring { color: transparent; text-shadow: 0 0 0 var(--gray-900); }
+
+
+
 
 /* ============================
    UPCOMING REQUESTS (FINAL POLISHED VERSION)
@@ -539,88 +588,58 @@ body {
   font-weight: 700;
 }
 
-/* --- Compact Nestey Flatpickr --- */
-.flatpickr-calendar {
-  border-radius: 10px !important;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07) !important;
-  border: 1px solid var(--gray-200) !important;
-  font-family: Inter, system-ui, sans-serif;
-  width: 250px !important;
-  font-size: 0.85rem;
-}
-
-/* Header */
-.flatpickr-months {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid var(--gray-200);
-  padding: 0.25rem 0.5rem;
-}
-
-.flatpickr-current-month {
-  font-weight: 600;
-  color: var(--gray-900);
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-/* Arrows */
-.flatpickr-prev-month,
-.flatpickr-next-month {
-  cursor: pointer;
-  color: var(--gray-600);
-  font-size: 1rem;
-  padding: 0.25rem;
-  transition: color 0.2s ease;
-}
-.flatpickr-prev-month:hover,
-.flatpickr-next-month:hover {
-  color: var(--blue-primary);
-}
-
-/* Weekdays */
-.flatpickr-weekday {
-  color: var(--gray-600);
-  font-weight: 600;
-  font-size: 0.7rem;
-}
-
-/* Days */
-.flatpickr-day {
-  border-radius: 6px !important;
-  height: 26px;
-  width: 26px;
-  line-height: 26px;
-  margin: 1px;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.flatpickr-day:hover {
-  background: var(--blue-light);
-  color: var(--gray-900);
-}
-.flatpickr-day.today {
-  border: 1px solid var(--blue-primary);
-  color: var(--blue-primary);
-}
-.flatpickr-day.selected {
-  background: var(--blue-primary);
-  color: #fff !important;
-  border: none !important;
-}
-.flatpickr-day.inRange {
-  background: var(--blue-light);
-  color: var(--gray-900);
-}
-
-/* Input field consistency */
-.flatpickr-input {
-  background: #fff;
+/* --- Litepicker Nestey Theme --- */
+.litepicker {
   border: 1px solid var(--gray-200);
-  border-radius: 10px;
-  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  font-family: Inter, system-ui, sans-serif;
+  background: #fff;
+  overflow: hidden;
+}
+
+.litepicker .container__months {
+  gap: 1rem;
+}
+
+.litepicker .month-item {
+  background: #fff;
+}
+
+.litepicker .month-item-header {
+  border-bottom: 1px solid var(--gray-200);
+  font-weight: 600;
+  color: var(--gray-900);
+  padding: 0.5rem;
   font-size: 0.9rem;
+}
+
+.litepicker .day-item {
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  font-size: 0.85rem;
+  height: 32px;
+  width: 32px;
+  line-height: 32px;
+  text-align: center;
+}
+
+.litepicker .day-item:hover {
+  background-color: var(--blue-light);
+  color: var(--gray-900);
+}
+
+.litepicker .is-start-date,
+.litepicker .is-end-date {
+  background-color: var(--blue-primary);
+  color: #fff !important;
+}
+
+.litepicker .is-in-range {
+  background-color: var(--blue-accent);
+  opacity: 0.25;
+}
+
+.litepicker .container__days {
+  padding: 0.5rem;
 }

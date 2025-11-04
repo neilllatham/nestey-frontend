@@ -79,6 +79,13 @@ function renderCalendar() {
     );
   }
 
+  // Ensure the last row always contains 7 cells so the Saturday column isn't visually missing
+  const remainder = cells.length % 7;
+  if (remainder !== 0) {
+    const pad = 7 - remainder;
+    for (let i = 0; i < pad; i++) cells.push("<div class='day empty'></div>");
+  }
+
   cal.innerHTML = `
     <div class="cal-header"><strong>${month} ${year}</strong></div>
     <div class="cal-weekdays">

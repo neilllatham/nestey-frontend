@@ -1,0 +1,67 @@
+/* --- Litepicker Nestey Theme --- */
+.litepicker {
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  font-family: Inter, system-ui, sans-serif;
+  background: #fff;
+  overflow: hidden;
+}
+
+.litepicker .container__months {
+  /* slightly reduced gap to remove excessive white space when displaying a single month */
+  gap: 0.5rem;
+}
+
+.litepicker .month-item {
+  background: #fff;
+}
+
+.litepicker .month-item-header {
+  border-bottom: 1px solid var(--gray-200);
+  font-weight: 600;
+  color: var(--gray-900);
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.litepicker .day-item {
+  border-radius: 8px;
+  transition: all 0.15s ease;
+  font-size: 0.85rem;
+  height: 32px;
+  width: 32px;
+  line-height: 32px;
+  text-align: center;
+}
+
+.litepicker .day-item:hover {
+  background-color: var(--blue-light);
+  color: var(--gray-900);
+}
+
+.litepicker .is-start-date,
+.litepicker .is-end-date {
+  background-color: var(--blue-primary);
+  color: #fff !important;
+}
+
+.litepicker .is-in-range {
+  background-color: var(--blue-accent);
+  opacity: 0.25;
+}
+
+.litepicker .container__days {
+  padding: 0.5rem;
+  /* defensive: enforce 7 columns for the picker days so the Saturday column is always present */
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  grid-auto-rows: 40px;
+}
+
+/* center day items inside the grid for consistent visibility */
+.litepicker .day-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
