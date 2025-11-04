@@ -31,37 +31,30 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         id="timeoffForm"
         style="display:flex;flex-wrap:wrap;gap:1rem;margin-top:.5rem;"
       >
-        <!-- FROM DATE -->
         <div
           class="kpi"
           style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
         >
           <label for="startDate">From</label>
           <input
-            type="text"
+            type="date"
             id="startDate"
-            placeholder="MM/DD/YYYY"
             required
-            style="padding:.75rem 1rem;border:1px solid var(--gray-200);border-radius:10px;"
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
           />
         </div>
-
-        <!-- TO DATE -->
         <div
           class="kpi"
           style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
         >
           <label for="endDate">To</label>
           <input
-            type="text"
+            type="date"
             id="endDate"
-            placeholder="MM/DD/YYYY"
             required
-            style="padding:.75rem 1rem;border:1px solid var(--gray-200);border-radius:10px;"
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
           />
         </div>
-
-        <!-- LEAVE TYPE -->
         <div
           class="kpi"
           style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3rem;"
@@ -69,15 +62,13 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
           <label for="leaveType">Type</label>
           <select
             id="leaveType"
-            style="padding:.75rem 1rem;border:1px solid var(--gray-200);border-radius:10px;"
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
           >
             <option>PTO</option>
             <option>Sick</option>
             <option>Floating Holiday</option>
           </select>
         </div>
-
-        <!-- REASON -->
         <div
           class="kpi"
           style="flex:2;min-width:250px;display:flex;flex-direction:column;gap:.3rem;"
@@ -87,19 +78,15 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
             type="text"
             id="reason"
             placeholder="Optional"
-            style="padding:.75rem 1rem;border:1px solid var(--gray-200);border-radius:10px;"
+            style="padding:.5rem;border:1px solid var(--gray-200);border-radius:10px;"
           />
         </div>
-
-        <!-- SUBMIT BUTTON -->
         <div style="display:flex;align-items:flex-end;">
           <button
             type="submit"
             class="pill"
-            style="padding:.7rem 1.5rem;font-weight:600;"
+            style="padding:.7rem 1.5rem;font-weight:600;">Submit Request</button
           >
-            Submit Request
-          </button>
         </div>
       </form>
     </div>
@@ -140,18 +127,12 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
           <div class="req-dates">Nov 15 2025</div>
           <div class="req-meta">
             <span class="type-pill">Sick</span>
-            <span class="status-badge" style="background:var(--blue-accent);">
-              Approved
-            </span>
+            <span class="status-badge" style="background:var(--blue-accent);"
+              >Approved</span
+            >
           </div>
         </li>
       </ul>
     </div>
   </section>
-
-  <!-- ✅ Correct way to include Flatpickr -->
-  <script type="module" src="/src/scripts/datepickers.js"></script>
-
-  <!-- ✅ Correct way to include dropdown -->
-  <script type="module" src="/src/scripts/choices.js"></script>
 </DefaultLayout>
