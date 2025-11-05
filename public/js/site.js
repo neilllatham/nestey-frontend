@@ -8,6 +8,45 @@ const chatWindow = document.getElementById("chatWindow");
 const input = document.getElementById("chatInput");
 const sendBtn = document.getElementById("sendBtn");
 
+// Set context-aware suggestions based on current page
+function setContextAwareSuggestions() {
+  const suggestionsContainer = document.getElementById('contextSuggestions');
+  if (!suggestionsContainer) return;
+  
+  const path = window.location.pathname;
+  let suggestions = [];
+  
+  if (path.includes('timeoff') || path.includes('time-off')) {
+    suggestions = [
+      { text: 'Book time off', say: 'book Dec 15 through Dec 17' },
+      { text: 'PTO balance', say: "What's my PTO balance?" },
+      { text: 'PTO used', say: 'How much PTO have I used this year?' }
+    ];
+  } else if (path.includes('benefit')) {
+    suggestions = [
+      { text: 'My benefits', say: 'What benefits do I have?' },
+      { text: 'What have I paid', say: 'What have I paid for benefits this year?' },
+      { text: 'Medical details', say: 'Tell me about my medical coverage' }
+    ];
+  } else {
+    // Default suggestions for other pages
+    suggestions = [
+      { text: 'Pending approvals', say: 'Show my pending approvals' },
+      { text: 'Book time off', say: 'Request time off' },
+      { text: 'PTO balance', say: "What's my PTO balance?" }
+    ];
+  }
+  
+  suggestionsContainer.innerHTML = suggestions.map(s => 
+    `<button class="pill" data-say="${s.say}">${s.text}</button>`
+  ).join('');
+}
+
+// Call on page load
+document.addEventListener('DOMContentLoaded', setContextAwareSuggestions);
+// Also call after a short delay to ensure DOM is ready
+setTimeout(setContextAwareSuggestions, 100);
+
 function timeNow() {
   return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
@@ -138,8 +177,139 @@ async function handleIntent(text) {
     return;
   }
 
+  // Handle specific benefit category questions (medical, dental, vision)
+  if ((msg.includes("tell me about") || msg.includes("what is") || msg.includes("show me")) && 
+      (msg.includes("medical") || msg.includes("dental") || msg.includes("vision"))) {
+    addMsg("ai", "Let me look up your coverage...");
+    
+    try {
+      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
+      if (!res.ok) throw new Error('Failed to fetch benefits');
+      const { byCategory } = await res.json();
+      
+      let category = msg.includes("medical") ? "Medical" : msg.includes("dental") ? "Dental" : "Vision";
+      const benefits = byCategory[category] || [];
+      
+      if (benefits.length > 0) {
+        const details = benefits.map(b => 
+          `${b.benefit_name}: ${b.description || 'Coverage available'}\nYou pay: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(b.employee_pays)}/pay period`
+        ).join('\n\n');
+        addMsg("ai", details);
+      } else {
+        addMsg("ai", `You don't have any ${category.toLowerCase()} benefits enrolled.`);
+      }
+    } catch (err) {
+      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+    }
+    return;
+  }
+
+  // Handle "what benefits do I have" - list all enrolled benefits
+  if ((msg.includes("what benefit") || msg.includes("my benefit") || msg.includes("which benefit")) && 
+      !msg.includes("cost") && !msg.includes("pay") && !msg.includes("how much")) {
+    addMsg("ai", "Let me check your benefits...");
+    
+    try {
+      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
+      if (!res.ok) throw new Error('Failed to fetch benefits');
+      const { byCategory } = await res.json();
+      
+      const categories = Object.keys(byCategory).filter(cat => byCategory[cat].length > 0);
+      if (categories.length > 0) {
+        const benefitsList = categories.map(cat => {
+          const benefits = byCategory[cat].map(b => `• ${b.benefit_name}`).join('\n');
+          return `${cat}:\n${benefits}`;
+        }).join('\n\n');
+        
+        addMsg("ai", `You're enrolled in:\n\n${benefitsList}`);
+      } else {
+        addMsg("ai", "You don't have any benefits enrolled yet.");
+      }
+    } catch (err) {
+      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+    }
+    return;
+  }
+
+  // Handle "what have I paid for [specific benefit]" - year-to-date by category
+  if ((((msg.includes("what") || msg.includes("how much")) && 
+        (msg.includes("paid") || msg.includes("spent"))) ||
+       (msg.includes("what about") || msg.includes("how about") || msg.includes("just for"))) &&
+      (msg.includes("medical") || msg.includes("dental") || msg.includes("vision") || msg.includes("benefit"))) {
+    
+    const category = msg.includes("medical") ? "Medical" : 
+                     msg.includes("dental") ? "Dental" : 
+                     msg.includes("vision") ? "Vision" : null;
+    
+    addMsg("ai", category ? `Let me calculate your year-to-date ${category.toLowerCase()} costs...` : "Let me calculate your year-to-date benefits costs...");
+    
+    try {
+      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
+      if (!res.ok) throw new Error('Failed to fetch benefits');
+      const { totals, byCategory } = await res.json();
+      
+      // Calculate pay periods elapsed (26 total per year, biweekly)
+      const today = new Date();
+      const yearStart = new Date(today.getFullYear(), 0, 1);
+      const daysSinceYearStart = Math.floor((today - yearStart) / (1000 * 60 * 60 * 24));
+      const payPeriodsElapsed = Math.floor(daysSinceYearStart / 14); // biweekly = 14 days
+      
+      if (category) {
+        // Calculate for specific category
+        const categoryBenefits = byCategory[category] || [];
+        if (categoryBenefits.length === 0) {
+          addMsg("ai", `You don't have any ${category.toLowerCase()} benefits enrolled.`);
+          return;
+        }
+        
+        const categoryEmployeeCost = categoryBenefits.reduce((sum, b) => sum + b.employee_pays, 0);
+        const categoryEmployerCost = categoryBenefits.reduce((sum, b) => sum + b.employer_pays, 0);
+        const categoryTotalCost = categoryBenefits.reduce((sum, b) => sum + b.total_plan_cost, 0);
+        
+        const ytdEmployeeCost = categoryEmployeeCost * payPeriodsElapsed;
+        const ytdEmployerCost = categoryEmployerCost * payPeriodsElapsed;
+        const ytdTotalCost = categoryTotalCost * payPeriodsElapsed;
+        
+        const summary = `${category} - Year-to-date (${payPeriodsElapsed} pay periods):\n\nYou've paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployeeCost)}\n\nYour employer paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployerCost)}\n\nTotal: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdTotalCost)}`;
+        
+        addMsg("ai", summary);
+      } else {
+        // Calculate for all benefits
+        const ytdEmployeeCost = totals.total_employee_pays * payPeriodsElapsed;
+        const ytdEmployerCost = totals.total_employer_pays * payPeriodsElapsed;
+        const ytdTotalCost = totals.total_cost * payPeriodsElapsed;
+        
+        const summary = `All Benefits - Year-to-date (${payPeriodsElapsed} pay periods):\n\nYou've paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployeeCost)}\n\nYour employer paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployerCost)}\n\nTotal: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdTotalCost)}`;
+        
+        addMsg("ai", summary);
+      }
+    } catch (err) {
+      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+    }
+    return;
+  }
+
+  // Handle benefits cost inquiry (per pay period)
+  if ((msg.includes("how much") || msg.includes("total")) && 
+      (msg.includes("benefit") || msg.includes("pay") || msg.includes("cost"))) {
+    addMsg("ai", "Let me check your benefits...");
+    
+    try {
+      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
+      if (!res.ok) throw new Error('Failed to fetch benefits');
+      const { totals, byCategory } = await res.json();
+      
+      const costSummary = `Per pay period:\n\nYou pay: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_employee_pays)}\n\nYour employer pays: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_employer_pays)}\n\nTotal: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_cost)}`;
+      
+      addMsg("ai", costSummary);
+    } catch (err) {
+      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+    }
+    return;
+  }
+
   // Handle PTO balance inquiry
-  if (msg.includes("balance") || msg.includes("how much") || msg.includes("how many")) {
+  if (msg.includes("balance") || ((msg.includes("how much") || msg.includes("how many")) && msg.includes("pto"))) {
     addMsg("ai", "Let me check your balance...");
     const balance = await getPTOBalance();
     
@@ -162,15 +332,34 @@ async function handleIntent(text) {
     return;
   }
   
+  // Handle benefits inquiry
+  if (msg.includes("benefit") || msg.includes("health") || msg.includes("insurance")) {
+    addMsg("ai", "Let me check your benefits...");
+    
+    try {
+      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
+      if (!res.ok) throw new Error('Failed to fetch benefits');
+      const { totals, byCategory } = await res.json();
+      
+      const categories = Object.keys(byCategory).filter(cat => byCategory[cat].length > 0);
+      const summary = categories.length > 0 
+        ? `You're enrolled in ${categories.join(', ')} benefits.\n\nYour total cost: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_employee_pays)} per pay period.`
+        : 'You don\'t have any benefits enrolled yet.';
+      
+      addMsg("ai", summary);
+    } catch (err) {
+      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+    }
+    return;
+  }
+  
   // Other intents
-  if (msg.includes("benefit")) {
-    addMsg("ai", "You can view benefits on the Benefits page.");
-  } else if (msg.includes("goal")) {
+  if (msg.includes("goal")) {
     addMsg("ai", "Goals are tracked on the Goals page.");
   } else if (msg.includes("personal")) {
     addMsg("ai", "Update personal info under the Personal section.");
   } else {
-    addMsg("ai", "I can help you:\n• Book time off (try: 'book Dec 8 through Dec 11')\n• Check your PTO balance\n• View pending approvals");
+    addMsg("ai", "I can help you:\n• Book time off (try: 'book Dec 8 through Dec 11')\n• Check your PTO balance\n• View your benefits");
   }
 }
 

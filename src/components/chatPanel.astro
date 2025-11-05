@@ -3,17 +3,17 @@
 </div>
 
 <div class="chat-window" id="chatWindow">
-  <div class="chat-message ai">
+  <div class="chat-message ai" id="welcomeMessage">
     <div class="avatar">🤖</div>
     <div class="bubble ai-bubble">
       Hi! I can help with PTO, benefits, or approvals.<br />
       Try one of these:
-      <div class="suggestions">
+      <div class="suggestions" id="contextSuggestions">
         <button class="pill" data-say="Show my pending approvals"
           >Pending approvals</button
         >
         <button class="pill" data-say="Request time off">Book time off</button>
-        <button class="pill" data-say="What’s my PTO balance?"
+        <button class="pill" data-say="What's my PTO balance?"
           >PTO balance</button
         >
       </div>
