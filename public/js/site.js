@@ -142,7 +142,7 @@ async function getPTOBalance() {
 async function handleIntent(text) {
   const msg = text.toLowerCase();
   
-  // Handle time off booking
+  // Handle time off booking with dates - keep this rule-based for reliability
   if (msg.includes("book") && (msg.includes("time off") || msg.includes("pto") || /\w+\s+\d+/.test(msg))) {
     const dates = parseDateRange(text);
     
@@ -164,203 +164,43 @@ async function handleIntent(text) {
     return;
   }
   
-  // Handle PTO used inquiry
-  if (msg.includes("used") && (msg.includes("vacation") || msg.includes("pto"))) {
-    addMsg("ai", "Let me check how much PTO you've used this year...");
-    const balance = await getPTOBalance();
-    if (balance && balance.PTO) {
-      const used = balance.PTO.total_used || 0;
-      addMsg("ai", `You've used ${used} days of PTO in ${new Date().getFullYear()}.`);
-    } else {
-      addMsg("ai", "Sorry, I couldn't fetch your PTO usage right now.");
-    }
-    return;
-  }
-
-  // Handle specific benefit category questions (medical, dental, vision)
-  if ((msg.includes("tell me about") || msg.includes("what is") || msg.includes("show me")) && 
-      (msg.includes("medical") || msg.includes("dental") || msg.includes("vision"))) {
-    addMsg("ai", "Let me look up your coverage...");
+  // For all other questions, use AI with database context
+  try {
+    addMsg("ai", "Let me check that for you...");
     
-    try {
-      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
-      if (!res.ok) throw new Error('Failed to fetch benefits');
-      const { byCategory } = await res.json();
-      
-      let category = msg.includes("medical") ? "Medical" : msg.includes("dental") ? "Dental" : "Vision";
-      const benefits = byCategory[category] || [];
-      
-      if (benefits.length > 0) {
-        const details = benefits.map(b => 
-          `${b.benefit_name}: ${b.description || 'Coverage available'}\nYou pay: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(b.employee_pays)}/pay period`
-        ).join('\n\n');
-        addMsg("ai", details);
+    const response = await fetch('http://localhost:3001/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        employee_id: 2 // TODO: Replace with actual employee ID from auth
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      if (errorData.fallback) {
+        addMsg("ai", errorData.fallback);
       } else {
-        addMsg("ai", `You don't have any ${category.toLowerCase()} benefits enrolled.`);
+        throw new Error('AI service unavailable');
       }
-    } catch (err) {
-      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+      return;
     }
-    return;
-  }
-
-  // Handle "what benefits do I have" - list all enrolled benefits
-  if ((msg.includes("what benefit") || msg.includes("my benefit") || msg.includes("which benefit")) && 
-      !msg.includes("cost") && !msg.includes("pay") && !msg.includes("how much")) {
-    addMsg("ai", "Let me check your benefits...");
     
-    try {
-      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
-      if (!res.ok) throw new Error('Failed to fetch benefits');
-      const { byCategory } = await res.json();
-      
-      const categories = Object.keys(byCategory).filter(cat => byCategory[cat].length > 0);
-      if (categories.length > 0) {
-        const benefitsList = categories.map(cat => {
-          const benefits = byCategory[cat].map(b => `• ${b.benefit_name}`).join('\n');
-          return `${cat}:\n${benefits}`;
-        }).join('\n\n');
-        
-        addMsg("ai", `You're enrolled in:\n\n${benefitsList}`);
-      } else {
-        addMsg("ai", "You don't have any benefits enrolled yet.");
-      }
-    } catch (err) {
-      addMsg("ai", "You can view detailed benefits on the Benefits page.");
+    const { response: aiResponse } = await response.json();
+    
+    // Remove the "checking" message and add AI response
+    const messages = chatWindow.querySelectorAll('.chat-message');
+    if (messages.length > 0) {
+      messages[messages.length - 1].remove();
     }
-    return;
-  }
-
-  // Handle "what have I paid for [specific benefit]" - year-to-date by category
-  if ((((msg.includes("what") || msg.includes("how much")) && 
-        (msg.includes("paid") || msg.includes("spent"))) ||
-       (msg.includes("what about") || msg.includes("how about") || msg.includes("just for"))) &&
-      (msg.includes("medical") || msg.includes("dental") || msg.includes("vision") || msg.includes("benefit"))) {
+    addMsg("ai", aiResponse);
     
-    const category = msg.includes("medical") ? "Medical" : 
-                     msg.includes("dental") ? "Dental" : 
-                     msg.includes("vision") ? "Vision" : null;
-    
-    addMsg("ai", category ? `Let me calculate your year-to-date ${category.toLowerCase()} costs...` : "Let me calculate your year-to-date benefits costs...");
-    
-    try {
-      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
-      if (!res.ok) throw new Error('Failed to fetch benefits');
-      const { totals, byCategory } = await res.json();
-      
-      // Calculate pay periods elapsed (26 total per year, biweekly)
-      const today = new Date();
-      const yearStart = new Date(today.getFullYear(), 0, 1);
-      const daysSinceYearStart = Math.floor((today - yearStart) / (1000 * 60 * 60 * 24));
-      const payPeriodsElapsed = Math.floor(daysSinceYearStart / 14); // biweekly = 14 days
-      
-      if (category) {
-        // Calculate for specific category
-        const categoryBenefits = byCategory[category] || [];
-        if (categoryBenefits.length === 0) {
-          addMsg("ai", `You don't have any ${category.toLowerCase()} benefits enrolled.`);
-          return;
-        }
-        
-        const categoryEmployeeCost = categoryBenefits.reduce((sum, b) => sum + b.employee_pays, 0);
-        const categoryEmployerCost = categoryBenefits.reduce((sum, b) => sum + b.employer_pays, 0);
-        const categoryTotalCost = categoryBenefits.reduce((sum, b) => sum + b.total_plan_cost, 0);
-        
-        const ytdEmployeeCost = categoryEmployeeCost * payPeriodsElapsed;
-        const ytdEmployerCost = categoryEmployerCost * payPeriodsElapsed;
-        const ytdTotalCost = categoryTotalCost * payPeriodsElapsed;
-        
-        const summary = `${category} - Year-to-date (${payPeriodsElapsed} pay periods):\n\nYou've paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployeeCost)}\n\nYour employer paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployerCost)}\n\nTotal: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdTotalCost)}`;
-        
-        addMsg("ai", summary);
-      } else {
-        // Calculate for all benefits
-        const ytdEmployeeCost = totals.total_employee_pays * payPeriodsElapsed;
-        const ytdEmployerCost = totals.total_employer_pays * payPeriodsElapsed;
-        const ytdTotalCost = totals.total_cost * payPeriodsElapsed;
-        
-        const summary = `All Benefits - Year-to-date (${payPeriodsElapsed} pay periods):\n\nYou've paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployeeCost)}\n\nYour employer paid: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdEmployerCost)}\n\nTotal: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(ytdTotalCost)}`;
-        
-        addMsg("ai", summary);
-      }
-    } catch (err) {
-      addMsg("ai", "You can view detailed benefits on the Benefits page.");
-    }
-    return;
+  } catch (err) {
+    console.error('AI chat error:', err);
+    addMsg("ai", "Sorry, I'm having trouble right now. Try asking about your PTO balance or benefits.");
   }
-
-  // Handle benefits cost inquiry (per pay period)
-  if ((msg.includes("how much") || msg.includes("total")) && 
-      (msg.includes("benefit") || msg.includes("pay") || msg.includes("cost"))) {
-    addMsg("ai", "Let me check your benefits...");
-    
-    try {
-      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
-      if (!res.ok) throw new Error('Failed to fetch benefits');
-      const { totals, byCategory } = await res.json();
-      
-      const costSummary = `Per pay period:\n\nYou pay: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_employee_pays)}\n\nYour employer pays: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_employer_pays)}\n\nTotal: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_cost)}`;
-      
-      addMsg("ai", costSummary);
-    } catch (err) {
-      addMsg("ai", "You can view detailed benefits on the Benefits page.");
-    }
-    return;
-  }
-
-  // Handle PTO balance inquiry
-  if (msg.includes("balance") || ((msg.includes("how much") || msg.includes("how many")) && msg.includes("pto"))) {
-    addMsg("ai", "Let me check your balance...");
-    const balance = await getPTOBalance();
-    
-    if (balance) {
-      const parts = [];
-      if (balance.PTO) parts.push(`PTO: ${balance.PTO.total_remaining} days`);
-      if (balance['Sick Leave']) parts.push(`Sick Leave: ${balance['Sick Leave'].total_remaining} days`);
-      if (balance['Floating Holiday']) parts.push(`Floating Holiday: ${balance['Floating Holiday'].total_remaining} days`);
-      
-      addMsg("ai", `Your current balances:\n${parts.join('\n')}`);
-    } else {
-      addMsg("ai", "Sorry, I couldn't fetch your balance right now.");
-    }
-    return;
-  }
-  
-  // Handle pending approvals
-  if (msg.includes("pending") || msg.includes("approval")) {
-    addMsg("ai", "You can view pending approvals on the Time Off page.");
-    return;
-  }
-  
-  // Handle benefits inquiry
-  if (msg.includes("benefit") || msg.includes("health") || msg.includes("insurance")) {
-    addMsg("ai", "Let me check your benefits...");
-    
-    try {
-      const res = await fetch('http://localhost:3001/api/benefits?employee_id=2');
-      if (!res.ok) throw new Error('Failed to fetch benefits');
-      const { totals, byCategory } = await res.json();
-      
-      const categories = Object.keys(byCategory).filter(cat => byCategory[cat].length > 0);
-      const summary = categories.length > 0 
-        ? `You're enrolled in ${categories.join(', ')} benefits.\n\nYour total cost: ${new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(totals.total_employee_pays)} per pay period.`
-        : 'You don\'t have any benefits enrolled yet.';
-      
-      addMsg("ai", summary);
-    } catch (err) {
-      addMsg("ai", "You can view detailed benefits on the Benefits page.");
-    }
-    return;
-  }
-  
-  // Other intents
-  if (msg.includes("goal")) {
-    addMsg("ai", "Goals are tracked on the Goals page.");
-  } else if (msg.includes("personal")) {
-    addMsg("ai", "Update personal info under the Personal section.");
-  } else {
-    addMsg("ai", "I can help you:\n• Book time off (try: 'book Dec 8 through Dec 11')\n• Check your PTO balance\n• View your benefits");
-  }
+  return;
 }
 
 if (sendBtn && input) {
