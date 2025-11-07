@@ -1,0 +1,184 @@
+---
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+---
+
+<DefaultLayout title="Personal">
+  <section class="workspace-header">
+    <h1>Personal Information</h1>
+  </section>
+
+  <section class="workspace-content">
+    <!-- EMPLOYEE INFO CARDS -->
+    <div class="card" style="grid-column: span 6;">
+      <h3>Basic Information</h3>
+      <div class="info-section" id="basicInfo">
+        <div class="loading">Loading basic information...</div>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column: span 6;">
+      <h3>Employment Details</h3>
+      <div class="info-section" id="employmentInfo">
+        <div class="loading">Loading employment details...</div>
+      </div>
+    </div>
+
+    <div class="card" style="grid-column: span 12;">
+      <h3>Organizational Information</h3>
+      <div class="info-section" id="orgInfo">
+        <div class="loading">Loading organizational information...</div>
+      </div>
+    </div>
+  </section>
+</DefaultLayout>
+
+<script>
+  // Employee ID (hardcoded for now - in production this would come from authentication)
+  const EMPLOYEE_ID = 107;
+
+  async function loadPersonalInfo() {
+    try {
+      const response = await fetch(
+        `http://localhost:3001/api/personal?employee_id=${EMPLOYEE_ID}&t=${Date.now()}`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load personal information");
+      }
+
+      const data = await response.json();
+      console.log("Personal data loaded:", data);
+      displayPersonalInfo(data);
+    } catch (error) {
+      console.error("Error loading personal info:", error);
+
+      // Display error in all sections
+      const errorMessage =
+        '<div style="color: #dc2626; text-align: center; padding: 1rem;">Unable to load information. Please try again later.</div>';
+      document.getElementById("basicInfo").innerHTML = errorMessage;
+      document.getElementById("employmentInfo").innerHTML = errorMessage;
+      document.getElementById("orgInfo").innerHTML = errorMessage;
+    }
+  }
+
+  function displayPersonalInfo(data) {
+    // Basic Information
+    document.getElementById("basicInfo").innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem;">
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Employee Number</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${data.employee_number || "Not Available"}</div>
+        </div>
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Full Name</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: var(--gray-900); line-height: 1.3;">${data.full_name || "Not Available"}</div>
+        </div>
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Preferred Name</label>
+          <div style="font-size: 1.1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${data.preferred_name || "Same as Full Name"}</div>
+        </div>
+      </div>
+    `;
+
+    // Employment Details
+    document.getElementById("employmentInfo").innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem;">
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Job Title</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: var(--gray-900); line-height: 1.3;">${data.job_title || "Not Available"}</div>
+        </div>
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Hire Date</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${
+            data.hire_date
+              ? new Date(data.hire_date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              : "Not Available"
+          }</div>
+        </div>
+      </div>
+    `;
+
+    // Organizational Information
+    document.getElementById("orgInfo").innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem;">
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Department</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: var(--gray-900); line-height: 1.3;">${data.department_name || "Not Available"}</div>
+        </div>
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Function</label>
+          <div style="font-size: 1.1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${data.function_name || "Not Available"}</div>
+        </div>
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Manager</label>
+          <div style="font-size: 1.1rem; font-weight: 600; color: var(--gray-900); line-height: 1.3;">${data.manager_name || "Not Available"}</div>
+          ${data.manager_title ? `<div style="font-size: 0.9rem; color: var(--gray-700); margin-top: 0.2rem;">${data.manager_title}</div>` : ""}
+        </div>
+      </div>
+    `;
+  }
+
+  // Load personal info when page loads
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("Personal page loaded, starting data fetch...");
+    loadPersonalInfo();
+  });
+</script>
+
+<style>
+  .info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .info-item {
+    padding: 1.5rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    background: var(--gray-50);
+  }
+
+  .info-item label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--gray-600);
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+
+  .info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    line-height: 1.4;
+  }
+
+  .loading {
+    color: var(--gray-500);
+    font-style: italic;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .info-highlight {
+    color: var(--blue-primary);
+  }
+
+  .info-secondary {
+    color: var(--gray-700);
+    font-weight: 500;
+  }
+
+  .manager-title {
+    font-size: 0.9rem;
+    color: var(--gray-700);
+    margin-top: 0.2rem;
+  }
+</style>

@@ -3,9 +3,13 @@
   --blue-accent: #89d4d2;
   --blue-light: #b2d2f2;
   --red-alert: #ca4139;
+  --green-success: #16a34a;
   --gray-900: #212428;
+  --gray-700: #374151;
   --gray-600: #4b4f56;
+  --gray-500: #6b7280;
   --gray-200: #f1f3f5;
+  --gray-50: #f9fafb;
   --bg: #fcfcfc;
   --radius: 14px;
 }
