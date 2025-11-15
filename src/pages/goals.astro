@@ -341,6 +341,112 @@ const title = "Annual Goals";
     loadGoalsData();
   };
 
+  window.addEmployeeGoal = function () {
+    console.log("Adding new employee goal");
+    
+    // Get strategies from the loaded goals data
+    const strategies = window.goalsData?.strategies || [];
+    console.log("Available strategies:", strategies);
+    
+    // Build strategy options
+    let strategyOptions = '<option value="">Select Strategy</option>';
+    strategies.forEach(strategy => {
+      strategyOptions += `<option value="${strategy.strategy_id}">${strategy.strategy_name}</option>`;
+    });
+    
+    // Create a simple form for adding a new goal
+    const form = `
+      <div style="padding: 1rem; border: 2px solid var(--blue-primary); border-radius: 10px; background: var(--gray-50); margin-top: 1rem;">
+        <h4 style="margin-bottom: 1rem;">Add New Goal</h4>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.875rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.5rem; display: block;">Strategy</label>
+          <select id="newGoalStrategy" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-300); border-radius: 5px;">
+            ${strategyOptions}
+          </select>
+        </div>        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.875rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.5rem; display: block;">Objective</label>
+          <input type="text" id="newGoalObjective" placeholder="Enter objective..." style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-300); border-radius: 5px;">
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.875rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.5rem; display: block;">Description</label>
+          <textarea id="newGoalDescription" placeholder="Enter description..." rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-300); border-radius: 5px; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-sm btn-success" onclick="saveNewGoal()">Save Goal</button>
+          <button class="btn btn-sm btn-outline" onclick="cancelAddGoal()">Cancel</button>
+        </div>
+      </div>
+    `;
+
+    // Add the form to the My Goals section
+    const mySection = document.getElementById("myGoalsSection");
+    if (mySection) {
+      mySection.insertAdjacentHTML("beforeend", form);
+    }
+  };
+
+  window.saveNewGoal = async function () {
+    console.log("Saving new goal");
+
+    const strategyId = document.getElementById("newGoalStrategy").value;
+    const objective = document.getElementById("newGoalObjective").value;
+    const description = document.getElementById("newGoalDescription").value;
+
+    if (!strategyId || !objective.trim()) {
+      alert("Please fill in Strategy and Objective fields");
+      return;
+    }
+
+    try {
+      const requestBody = {
+        employee_id: 301, // TODO: Get this dynamically
+        review_cycle_id: 1, // TODO: Get this dynamically (for now using 1)
+        strategy_id: parseInt(strategyId),
+        objective: objective.trim(),
+        goal_description: description.trim()
+      };
+      
+      console.log("Sending request:", requestBody);
+
+      const response = await fetch("http://localhost:3001/api/goals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log("Goal created successfully:", result);
+
+      // Remove the form and reload goals
+      cancelAddGoal();
+      loadGoalsData();
+    } catch (error) {
+      console.error("Error creating goal:", error);
+      alert("Error creating goal. Please check the browser console for details.");
+    }
+  };
+
+  window.cancelAddGoal = function () {
+    // Remove the add goal form
+    const forms = document.querySelectorAll(
+      'div[style*="border: 2px solid var(--blue-primary)"]'
+    );
+    forms.forEach((form) => form.remove());
+  };
+
   // Toggle section collapse/expand
   window.toggleManagerGoals = function () {
     const content = document.getElementById("managerGoalsContent");
