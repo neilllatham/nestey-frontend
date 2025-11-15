@@ -137,21 +137,23 @@ const title = "Annual Goals";
       html += `
         <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-            <div style="flex: 1;">
-              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Objective</label>
-              <div style="font-size: 1.1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.objective || "Untitled Goal"}</div>
+            <div style="flex: 1; display: flex; gap: 2rem;">
+              <div style="flex: 1;">
+                <h3 style="margin-bottom: 0.4rem;">Strategy</h3>
+                <div style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.strategy_name || "No strategy specified"}</div>
+              </div>
+              <div style="flex: 2;">
+                <h3 style="margin-bottom: 0.2rem;">Objective</h3>
+                <div style="font-size: 1.1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.objective || "Untitled Goal"}</div>
+              </div>
             </div>
             <button class="btn btn-sm btn-outline toggle-goal-btn" data-goal-id="${goalId}" style="margin-left: 1rem;">
               <span class="toggle-icon">\u2212</span>
             </button>
           </div>
-          <div id="details-${goalId}">
-            <div style="margin-bottom: 0.5rem;">
-              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Strategy</label>
-              <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.strategy_name || "No strategy specified"}</div>
-            </div>
+          <div id="details-${goalId}" style="margin-top: 1rem;">
             <div>
-              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Description</label>
+              <h3 style="margin-bottom: 0.4rem;">Description</h3>
               <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.goal_description || "No description provided"}</div>
             </div>
           </div>
@@ -180,9 +182,15 @@ const title = "Annual Goals";
       html += `
         <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);" data-goal-id="${goal.goal_id}">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
-            <div style="flex: 1;">
-              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Objective</label>
-              <div style="font-size: 1.1rem; font-weight: 600; color: var(--gray-900); line-height: 1.3;">${goal.objective || "Untitled Goal"}</div>
+            <div style="flex: 1; display: flex; gap: 2rem;">
+              <div style="flex: 1;">
+                <h3>Strategy</h3>
+                <div style="font-size: 1rem; font-weight: 500; color: var(--blue-primary); line-height: 1.3;">${goal.strategy_name || "No strategy specified"}</div>
+              </div>
+              <div style="flex: 2;">
+                <h3 style="margin-bottom: 0.2rem;">Objective</h3>
+                <div style="font-size: 1.1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.objective || "Untitled Goal"}</div>
+              </div>
             </div>
             <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
               <button class="btn btn-sm btn-outline" onclick="editGoal(${goal.goal_id})">Edit</button>
@@ -191,13 +199,9 @@ const title = "Annual Goals";
               </button>
             </div>
           </div>
-          <div id="details-${goalId}">
-            <div style="margin-bottom: 0.5rem;">
-              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Strategy</label>
-              <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.strategy_name || "No strategy specified"}</div>
-            </div>
+          <div id="details-${goalId}" style="margin-top: 1rem;">
             <div>
-              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Description</label>
+              <h3 style="margin-bottom: 0.4rem;">Description</h3>
               <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.goal_description || "No description provided"}</div>
             </div>
           </div>
@@ -250,16 +254,16 @@ const title = "Annual Goals";
     // Create edit form
     const editForm = `
         <div style="padding: 1rem; border: 1px solid var(--blue-accent); border-radius: 10px; background: var(--gray-50); margin-top: 0.5rem;">
-          <div style="margin-bottom: 1rem;">
-            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editObjective">Objective</label>
+                    <div style="margin-bottom: 1rem;">
+            <label style="font-size: 0.75rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editObjective">Objective</label>
             <input type="text" id="editObjective" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem;" value="${goal.objective || ""}">
           </div>
           <div style="margin-bottom: 1rem;">
-            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editDescription">Description</label>
+            <label style="font-size: 0.75rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editDescription">Description</label>
             <textarea id="editDescription" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem; min-height: 80px; resize: vertical;" rows="3">${goal.goal_description || ""}</textarea>
           </div>
           <div style="margin-bottom: 1rem;">
-            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editStrategy">Strategy</label>
+            <label style="font-size: 0.75rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editStrategy">Strategy</label>
             <select id="editStrategy" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem;">
               <option value="">Select a strategy...</option>
               ${strategiesOptions}
