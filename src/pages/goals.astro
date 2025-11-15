@@ -240,9 +240,10 @@ const title = "Annual Goals";
 
     // Generate strategies dropdown options
     const strategies = (window.goalsData && window.goalsData.strategies) || [];
-    let strategiesOptions = '';
-    strategies.forEach(strategy => {
-      const selected = strategy.strategy_id === goal.strategy_id ? 'selected' : '';
+    let strategiesOptions = "";
+    strategies.forEach((strategy) => {
+      const selected =
+        strategy.strategy_id === goal.strategy_id ? "selected" : "";
       strategiesOptions += `<option value="${strategy.strategy_id}" ${selected}>${strategy.strategy_name}</option>`;
     });
 
@@ -368,41 +369,52 @@ const title = "Annual Goals";
   };
 
   // Event delegation for toggle buttons
-  document.addEventListener('click', function(e) {
+  document.addEventListener("click", function (e) {
     const target = e.target;
     if (!target) return;
-    
+
     // Check if clicked element or its parent is a toggle button
     let button = null;
-    if (target.classList && target.classList.contains('toggle-goal-btn')) {
+    if (target.classList && target.classList.contains("toggle-goal-btn")) {
       button = target;
-    } else if (target.parentElement && target.parentElement.classList && target.parentElement.classList.contains('toggle-goal-btn')) {
+    } else if (
+      target.parentElement &&
+      target.parentElement.classList &&
+      target.parentElement.classList.contains("toggle-goal-btn")
+    ) {
       button = target.parentElement;
     }
-    
+
     if (button) {
-      const goalId = button.getAttribute('data-goal-id');
+      const goalId = button.getAttribute("data-goal-id");
       console.log("Toggle button clicked for goal:", goalId);
-      
+
       const details = document.getElementById(`details-${goalId}`);
-      const toggleIcon = button.querySelector('.toggle-icon');
-      
+      const toggleIcon = button.querySelector(".toggle-icon");
+
       console.log("Found elements:", { details, toggleIcon, goalId });
-      
+
       if (details && toggleIcon) {
-        if (details.style.display === 'none' || details.classList.contains("collapsed")) {
+        if (
+          details.style.display === "none" ||
+          details.classList.contains("collapsed")
+        ) {
           console.log("Expanding goal details");
-          details.style.display = 'block';
+          details.style.display = "block";
           details.classList.remove("collapsed");
           toggleIcon.textContent = "\u2212";
         } else {
           console.log("Collapsing goal details");
-          details.style.display = 'none';
+          details.style.display = "none";
           details.classList.add("collapsed");
           toggleIcon.textContent = "+";
         }
       } else {
-        console.log("Could not find details or toggle elements", { details, toggleIcon, goalId });
+        console.log("Could not find details or toggle elements", {
+          details,
+          toggleIcon,
+          goalId,
+        });
       }
     }
   });
