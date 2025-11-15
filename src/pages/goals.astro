@@ -343,17 +343,17 @@ const title = "Annual Goals";
 
   window.addEmployeeGoal = function () {
     console.log("Adding new employee goal");
-    
+
     // Get strategies from the loaded goals data
     const strategies = window.goalsData?.strategies || [];
     console.log("Available strategies:", strategies);
-    
+
     // Build strategy options
     let strategyOptions = '<option value="">Select Strategy</option>';
-    strategies.forEach(strategy => {
+    strategies.forEach((strategy) => {
       strategyOptions += `<option value="${strategy.strategy_id}">${strategy.strategy_name}</option>`;
     });
-    
+
     // Create a simple form for adding a new goal
     const form = `
       <div style="padding: 1rem; border: 2px solid var(--blue-primary); border-radius: 10px; background: var(--gray-50); margin-top: 1rem;">
@@ -406,9 +406,9 @@ const title = "Annual Goals";
         review_cycle_id: 1, // TODO: Get this dynamically (for now using 1)
         strategy_id: parseInt(strategyId),
         objective: objective.trim(),
-        goal_description: description.trim()
+        goal_description: description.trim(),
       };
-      
+
       console.log("Sending request:", requestBody);
 
       const response = await fetch("http://localhost:3001/api/goals", {
@@ -420,11 +420,13 @@ const title = "Annual Goals";
       });
 
       console.log("Response status:", response.status);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error("Error response:", errorText);
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
       }
 
       const result = await response.json();
@@ -435,7 +437,9 @@ const title = "Annual Goals";
       loadGoalsData();
     } catch (error) {
       console.error("Error creating goal:", error);
-      alert("Error creating goal. Please check the browser console for details.");
+      alert(
+        "Error creating goal. Please check the browser console for details."
+      );
     }
   };
 
