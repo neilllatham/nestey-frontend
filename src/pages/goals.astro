@@ -1,0 +1,444 @@
+---
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+
+const title = "Annual Goals";
+---
+
+<DefaultLayout title={title}>
+  <section class="workspace-header">
+    <h1>Annual Goals</h1>
+  </section>
+
+  <section class="workspace-content">
+    <!-- State Navigation -->
+    <div class="card" style="grid-column: span 12;">
+      <div style="display: flex; justify-content: center; gap: 0.5rem;">
+        <div class="pill active">Build Plan</div>
+        <div class="pill disabled">Mid-Year Review</div>
+        <div class="pill disabled">End-of-Year Review</div>
+      </div>
+    </div>
+
+    <!-- Manager Goals Section -->
+    <div class="card" style="grid-column: span 12;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center;"
+      >
+        <h3>Manager's Goals</h3>
+        <button
+          type="button"
+          class="btn btn-sm btn-outline"
+          onclick="toggleManagerGoals()"
+        >
+          <span id="manager-toggle">−</span>
+        </button>
+      </div>
+      <div id="managerGoalsContent">
+        <div id="managerGoalsSection">
+          <div class="loading">Loading manager's goals...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Goals Section -->
+    <div class="card" style="grid-column: span 12;">
+      <div
+        style="display: flex; justify-content: space-between; align-items: center;"
+      >
+        <h3>My Goals</h3>
+        <div style="display: flex; gap: 0.5rem;">
+          <button
+            type="button"
+            class="btn btn-sm btn-success"
+            onclick="addEmployeeGoal()"
+          >
+            + Add Goal
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm btn-outline"
+            onclick="toggleMyGoals()"
+          >
+            <span id="my-toggle">−</span>
+          </button>
+        </div>
+      </div>
+      <div id="myGoalsContent">
+        <div id="myGoalsSection">
+          <div class="loading">Loading your goals...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</DefaultLayout>
+
+<script>
+  const EMPLOYEE_ID = 301;
+  let currentState = "build-plan";
+
+  console.log("Script started");
+
+  async function loadGoalsData() {
+    try {
+      console.log("Loading goals data...");
+      const url = `http://localhost:3001/api/goals?employee_id=${EMPLOYEE_ID}&state=${currentState}`;
+      console.log("Fetching from URL:", url);
+
+      const response = await fetch(url);
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Goals data received:", data);
+      console.log("Manager goals:", data.managerGoals);
+      console.log("My goals:", data.goals || data.myGoals);
+
+      // Display manager goals
+      console.log("About to display manager goals...");
+      displayManagerGoals(data.managerGoals || []);
+
+      // Store goals data globally for edit functionality
+      window.goalsData = data;
+
+      // Display my goals
+      console.log("About to display my goals...");
+      displayMyGoals(data.goals || data.myGoals || []);
+    } catch (error) {
+      console.error("Error loading goals:", error);
+      document.getElementById("managerGoalsSection").innerHTML =
+        '<div style="color: red;">Error loading manager goals: ' +
+        error.message +
+        "</div>";
+      document.getElementById("myGoalsSection").innerHTML =
+        '<div style="color: red;">Error loading goals: ' +
+        error.message +
+        "</div>";
+    }
+  }
+
+  function displayManagerGoals(managerGoals) {
+    console.log("displayManagerGoals called with:", managerGoals);
+    const section = document.getElementById("managerGoalsSection");
+
+    if (!managerGoals || managerGoals.length === 0) {
+      section.innerHTML =
+        '<div style="color: var(--gray-500); font-style: italic; padding: 1rem; text-align: center;">No manager goals available for this review period.</div>';
+      return;
+    }
+
+    let html =
+      '<div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">';
+    managerGoals.forEach((goal, index) => {
+      const goalId = `manager-goal-${index}`;
+      html += `
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Objective</label>
+              <div style="font-size: 1.1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.objective || "Untitled Goal"}</div>
+            </div>
+            <button class="btn btn-sm btn-outline toggle-goal-btn" data-goal-id="${goalId}" style="margin-left: 1rem;">
+              <span class="toggle-icon">\u2212</span>
+            </button>
+          </div>
+          <div id="details-${goalId}">
+            <div style="margin-bottom: 0.5rem;">
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Strategy</label>
+              <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.strategy_name || "No strategy specified"}</div>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Description</label>
+              <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.goal_description || "No description provided"}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    html += "</div>";
+
+    section.innerHTML = html;
+  }
+
+  function displayMyGoals(myGoals) {
+    console.log("displayMyGoals called with:", myGoals);
+    const mySection = document.getElementById("myGoalsSection");
+
+    if (!myGoals || myGoals.length === 0) {
+      mySection.innerHTML =
+        '<div style="color: var(--gray-500); font-style: italic; padding: 1rem; text-align: center;">No goals set yet. Click "Add New Goal" to get started.</div>';
+      return;
+    }
+
+    let html =
+      '<div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 0.5rem;">';
+    myGoals.forEach((goal, index) => {
+      const goalId = `my-goal-${index}`;
+      html += `
+        <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);" data-goal-id="${goal.goal_id}">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div style="flex: 1;">
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Objective</label>
+              <div style="font-size: 1.1rem; font-weight: 600; color: var(--gray-900); line-height: 1.3;">${goal.objective || "Untitled Goal"}</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
+              <button class="btn btn-sm btn-outline" onclick="editGoal(${goal.goal_id})">Edit</button>
+              <button class="btn btn-sm btn-outline toggle-goal-btn" data-goal-id="${goalId}">
+                <span class="toggle-icon">\u2212</span>
+              </button>
+            </div>
+          </div>
+          <div id="details-${goalId}">
+            <div style="margin-bottom: 0.5rem;">
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Strategy</label>
+              <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.strategy_name || "No strategy specified"}</div>
+            </div>
+            <div>
+              <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Description</label>
+              <div style="font-size: 1rem; font-weight: 500; color: var(--gray-700); line-height: 1.3;">${goal.goal_description || "No description provided"}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+    html += "</div>";
+
+    mySection.innerHTML = html;
+  }
+
+  let currentlyEditing = null;
+
+  window.editGoal = function (goalId) {
+    console.log("Editing goal with ID:", goalId);
+    console.log("Looking for div with data-goal-id:", goalId);
+
+    // Cancel any existing edit
+    if (currentlyEditing) {
+      cancelEdit(currentlyEditing);
+    }
+
+    currentlyEditing = goalId;
+
+    // Find the goal data
+    console.log("Looking for goal ID:", goalId, "in data:", window.goalsData);
+    const myGoals =
+      (window.goalsData &&
+        (window.goalsData.goals || window.goalsData.myGoals)) ||
+      [];
+    console.log("Available goals:", myGoals);
+    // Try both possible field names
+    const goal = myGoals.find((g) => g.goal_id === goalId || g.id === goalId);
+    console.log("Found goal:", goal);
+
+    if (!goal) {
+      alert("Goal not found!");
+      return;
+    }
+
+    // Generate strategies dropdown options
+    const strategies = (window.goalsData && window.goalsData.strategies) || [];
+    let strategiesOptions = '';
+    strategies.forEach(strategy => {
+      const selected = strategy.strategy_id === goal.strategy_id ? 'selected' : '';
+      strategiesOptions += `<option value="${strategy.strategy_id}" ${selected}>${strategy.strategy_name}</option>`;
+    });
+
+    // Create edit form
+    const editForm = `
+        <div style="padding: 1rem; border: 1px solid var(--blue-accent); border-radius: 10px; background: var(--gray-50); margin-top: 0.5rem;">
+          <div style="margin-bottom: 1rem;">
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editObjective">Objective</label>
+            <input type="text" id="editObjective" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem;" value="${goal.objective || ""}">
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editDescription">Description</label>
+            <textarea id="editDescription" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem; min-height: 80px; resize: vertical;" rows="3">${goal.goal_description || ""}</textarea>
+          </div>
+          <div style="margin-bottom: 1rem;">
+            <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editStrategy">Strategy</label>
+            <select id="editStrategy" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem;">
+              <option value="">Select a strategy...</option>
+              ${strategiesOptions}
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+            <button type="button" class="btn btn-success" onclick="saveGoal(${goalId})">Save Draft</button>
+            <button type="button" class="btn btn-outline" onclick="cancelEdit(${goalId})">Cancel</button>
+          </div>
+        </div>
+      `;
+
+    // Replace the goal content with edit form
+    const goalDiv = document.querySelector(`[data-goal-id="${goalId}"]`);
+    if (goalDiv) {
+      goalDiv.innerHTML = editForm;
+    } else {
+      console.error("Could not find goal div with data-goal-id:", goalId);
+    }
+  };
+
+  window.saveGoal = async function (goalId) {
+    console.log("Saving goal:", goalId);
+
+    try {
+      const objectiveInput = document.getElementById("editObjective");
+      const descriptionInput = document.getElementById("editDescription");
+      const strategySelect = document.getElementById("editStrategy");
+
+      if (!objectiveInput || !descriptionInput || !strategySelect) {
+        alert("Could not find form elements");
+        return;
+      }
+
+      const objective = objectiveInput.value;
+      const description = descriptionInput.value;
+      const strategy_id = strategySelect.value;
+
+      const response = await fetch(
+        `http://localhost:3001/api/goals/${goalId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            objective: objective,
+            goal_description: description,
+            strategy_id: strategy_id || null,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Goal saved successfully!");
+        // Reload the goals to show updated data
+        await loadGoalsData();
+      } else {
+        const errorData = await response.text();
+        alert("Failed to save goal: " + errorData);
+      }
+    } catch (error) {
+      console.error("Error saving goal:", error);
+      alert(
+        "Error saving goal: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
+    }
+  };
+
+  window.cancelEdit = function (goalId) {
+    console.log("Cancelling edit for goal:", goalId);
+    currentlyEditing = null;
+    // Reload goals to restore original view
+    loadGoalsData();
+  };
+
+  // Toggle section collapse/expand
+  window.toggleManagerGoals = function () {
+    const content = document.getElementById("managerGoalsContent");
+    const toggle = document.getElementById("manager-toggle");
+
+    if (content && toggle) {
+      if (content.classList.contains("collapsed")) {
+        content.classList.remove("collapsed");
+        toggle.textContent = "−";
+      } else {
+        content.classList.add("collapsed");
+        toggle.textContent = "+";
+      }
+    }
+  };
+
+  window.toggleMyGoals = function () {
+    const content = document.getElementById("myGoalsContent");
+    const toggle = document.getElementById("my-toggle");
+
+    if (content && toggle) {
+      if (content.classList.contains("collapsed")) {
+        content.classList.remove("collapsed");
+        toggle.textContent = "−";
+      } else {
+        content.classList.add("collapsed");
+        toggle.textContent = "+";
+      }
+    }
+  };
+
+  // Event delegation for toggle buttons
+  document.addEventListener('click', function(e) {
+    const target = e.target;
+    if (!target) return;
+    
+    // Check if clicked element or its parent is a toggle button
+    let button = null;
+    if (target.classList && target.classList.contains('toggle-goal-btn')) {
+      button = target;
+    } else if (target.parentElement && target.parentElement.classList && target.parentElement.classList.contains('toggle-goal-btn')) {
+      button = target.parentElement;
+    }
+    
+    if (button) {
+      const goalId = button.getAttribute('data-goal-id');
+      console.log("Toggle button clicked for goal:", goalId);
+      
+      const details = document.getElementById(`details-${goalId}`);
+      const toggleIcon = button.querySelector('.toggle-icon');
+      
+      console.log("Found elements:", { details, toggleIcon, goalId });
+      
+      if (details && toggleIcon) {
+        if (details.style.display === 'none' || details.classList.contains("collapsed")) {
+          console.log("Expanding goal details");
+          details.style.display = 'block';
+          details.classList.remove("collapsed");
+          toggleIcon.textContent = "\u2212";
+        } else {
+          console.log("Collapsing goal details");
+          details.style.display = 'none';
+          details.classList.add("collapsed");
+          toggleIcon.textContent = "+";
+        }
+      } else {
+        console.log("Could not find details or toggle elements", { details, toggleIcon, goalId });
+      }
+    }
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM ready");
+    document.getElementById("managerGoalsSection").innerHTML =
+      '<div class="loading">Loading manager\'s goals...</div>';
+    document.getElementById("myGoalsSection").innerHTML =
+      '<div class="loading">Loading your goals...</div>';
+    loadGoalsData();
+  });
+</script>
+
+<style>
+  .pill.active {
+    background: var(--blue-primary);
+    color: white;
+    border-color: var(--blue-primary);
+  }
+
+  .pill.disabled {
+    background: var(--gray-200);
+    color: var(--gray-500);
+    border-color: var(--gray-200);
+    cursor: not-allowed;
+  }
+
+  .collapsed {
+    display: none;
+  }
+
+  .loading {
+    color: var(--gray-500);
+    font-style: italic;
+    padding: 1rem;
+    text-align: center;
+  }
+</style>
