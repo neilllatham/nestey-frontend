@@ -148,7 +148,20 @@ const title = "Annual Goals";
               </div>
               <div style="flex: 1;">
                 <h3 style="margin-bottom: 0.4rem;">Date</h3>
-                <div style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.target_date && goal.target_date !== 'null' ? (() => { try { const dateStr = goal.target_date.split('T')[0]; return new Date(dateStr + 'T12:00:00').toLocaleDateString(); } catch(e) { return "Invalid date"; } })() : "No date set"}</div>
+                <div style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${
+                  goal.target_date && goal.target_date !== "null"
+                    ? (() => {
+                        try {
+                          const dateStr = goal.target_date.split("T")[0];
+                          return new Date(
+                            dateStr + "T12:00:00"
+                          ).toLocaleDateString();
+                        } catch (e) {
+                          return "Invalid date";
+                        }
+                      })()
+                    : "No date set"
+                }</div>
               </div>
             </div>
             <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
@@ -200,7 +213,20 @@ const title = "Annual Goals";
               </div>
               <div style="flex: 1;">
                 <h3 style="margin-bottom: 0.4rem;">Date</h3>
-                <div style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${goal.target_date && goal.target_date !== 'null' ? (() => { try { const dateStr = goal.target_date.split('T')[0]; return new Date(dateStr + 'T12:00:00').toLocaleDateString(); } catch(e) { return "Invalid date"; } })() : "No date set"}</div>
+                <div style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); line-height: 1.3;">${
+                  goal.target_date && goal.target_date !== "null"
+                    ? (() => {
+                        try {
+                          const dateStr = goal.target_date.split("T")[0];
+                          return new Date(
+                            dateStr + "T12:00:00"
+                          ).toLocaleDateString();
+                        } catch (e) {
+                          return "Invalid date";
+                        }
+                      })()
+                    : "No date set"
+                }</div>
               </div>
             </div>
             <div style="display: flex; gap: 0.5rem; margin-left: 1rem;">
@@ -282,7 +308,17 @@ const title = "Annual Goals";
           </div>
           <div style="margin-bottom: 1rem;">
             <label style="font-size: 0.75rem; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;" for="editCompletionDate">Completion Date</label>
-                        <input type="date" id="editCompletionDate" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem;" value="${goal.target_date && goal.target_date !== 'null' ? (() => { try { return goal.target_date.split('T')[0]; } catch(e) { return ''; } })() : ''}">
+                        <input type="date" id="editCompletionDate" style="width: 100%; padding: 0.5rem; border: 1px solid var(--gray-200); border-radius: calc(var(--radius) / 2); font-size: 0.9rem;" value="${
+                          goal.target_date && goal.target_date !== "null"
+                            ? (() => {
+                                try {
+                                  return goal.target_date.split("T")[0];
+                                } catch (e) {
+                                  return "";
+                                }
+                              })()
+                            : ""
+                        }">
           </div>
           <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
             <button type="button" class="btn btn-success" onclick="saveGoal(${goalId})">Save Draft</button>
@@ -309,7 +345,12 @@ const title = "Annual Goals";
       const strategySelect = document.getElementById("editStrategy");
       const completionDateInput = document.getElementById("editCompletionDate");
 
-      if (!objectiveInput || !descriptionInput || !strategySelect || !completionDateInput) {
+      if (
+        !objectiveInput ||
+        !descriptionInput ||
+        !strategySelect ||
+        !completionDateInput
+      ) {
         alert("Could not find form elements");
         return;
       }
@@ -417,7 +458,9 @@ const title = "Annual Goals";
     const strategyId = document.getElementById("newGoalStrategy").value;
     const objective = document.getElementById("newGoalObjective").value;
     const description = document.getElementById("newGoalDescription").value;
-    const completionDate = document.getElementById("newGoalCompletionDate").value;
+    const completionDate = document.getElementById(
+      "newGoalCompletionDate"
+    ).value;
 
     if (!strategyId || !objective.trim()) {
       alert("Please fill in Strategy and Objective fields");
@@ -431,7 +474,7 @@ const title = "Annual Goals";
         strategy_id: parseInt(strategyId),
         objective: objective.trim(),
         goal_description: description.trim(),
-        target_date: completionDate || null
+        target_date: completionDate || null,
       };
 
       console.log("Sending request:", requestBody);
