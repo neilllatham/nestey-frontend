@@ -63,8 +63,6 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </div>
       </div>
     </div>
-
-
   </section>
 </DefaultLayout>
 
@@ -307,7 +305,12 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   };
 
   window.saveRatingImmediately = async function (goalId, rating) {
-    console.log("Saving rating immediately for goal:", goalId, "Rating:", rating);
+    console.log(
+      "Saving rating immediately for goal:",
+      goalId,
+      "Rating:",
+      rating
+    );
 
     try {
       const response = await fetch(
@@ -344,8 +347,6 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       );
     }
   };
-
-
 
   // Toggle section collapse/expand
   window.toggleManagerGoals = function () {

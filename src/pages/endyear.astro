@@ -11,9 +11,15 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
     <!-- State Navigation -->
     <div class="card" style="grid-column: span 12;">
       <div style="display: flex; justify-content: center; gap: 0.5rem;">
-        <div class="pill" onclick="navigateToPhase('build-plan')">Build Plan</div>
-        <div class="pill" onclick="navigateToPhase('mid-year')">Mid-Year Review</div>
-        <div class="pill active" onclick="navigateToPhase('end-of-year')">End-of-Year Review</div>
+        <div class="pill" onclick="navigateToPhase('build-plan')">
+          Build Plan
+        </div>
+        <div class="pill" onclick="navigateToPhase('mid-year')">
+          Mid-Year Review
+        </div>
+        <div class="pill active" onclick="navigateToPhase('end-of-year')">
+          End-of-Year Review
+        </div>
       </div>
     </div>
 
@@ -95,22 +101,23 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
       // Show rating scale
       displayRatingScale(data.ratingScale || []);
-
     } catch (error) {
       console.error("Error loading goals data:", error);
       const managerSection = document.getElementById("managerGoalsSection");
       const mySection = document.getElementById("myGoalsSection");
 
       if (managerSection) {
-        managerSection.innerHTML = 
-          '<div style="color: red; padding: 1rem;">Error loading manager goals: ' + 
-          (error instanceof Error ? error.message : "Unknown error") + '</div>';
+        managerSection.innerHTML =
+          '<div style="color: red; padding: 1rem;">Error loading manager goals: ' +
+          (error instanceof Error ? error.message : "Unknown error") +
+          "</div>";
       }
 
       if (mySection) {
-        mySection.innerHTML = 
-          '<div style="color: red; padding: 1rem;">Error loading your goals: ' + 
-          (error instanceof Error ? error.message : "Unknown error") + '</div>';
+        mySection.innerHTML =
+          '<div style="color: red; padding: 1rem;">Error loading your goals: ' +
+          (error instanceof Error ? error.message : "Unknown error") +
+          "</div>";
       }
     }
   }
@@ -256,20 +263,21 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
     console.log("Rating scale:", ratingScale);
   }
 
-  window.rateGoalAsManager = function(goalId) {
+  window.rateGoalAsManager = function (goalId) {
     console.log("Rating goal as manager:", goalId);
-    
+
     // Create rating modal/form for manager rating
     const ratingOptions = [
       { value: 1, label: "1 - Needs Improvement" },
       { value: 2, label: "2 - Below Expectations" },
       { value: 3, label: "3 - Meets Expectations" },
       { value: 4, label: "4 - Exceeds Expectations" },
-      { value: 5, label: "5 - Outstanding" }
+      { value: 5, label: "5 - Outstanding" },
     ];
 
-    let ratingHTML = '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
-    ratingOptions.forEach(option => {
+    let ratingHTML =
+      '<div style="display: flex; flex-direction: column; gap: 0.5rem;">';
+    ratingOptions.forEach((option) => {
       ratingHTML += `
         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
           <input type="radio" name="managerRating" value="${option.value}" style="margin: 0;" onchange="saveManagerRatingImmediately(${goalId}, ${option.value})">
@@ -277,7 +285,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </label>
       `;
     });
-    ratingHTML += '</div>';
+    ratingHTML += "</div>";
 
     const formHTML = `
       <div id="managerRatingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
@@ -291,29 +299,37 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', formHTML);
+    document.body.insertAdjacentHTML("beforeend", formHTML);
   };
 
-  window.closeManagerRatingModal = function() {
-    const modal = document.getElementById('managerRatingModal');
+  window.closeManagerRatingModal = function () {
+    const modal = document.getElementById("managerRatingModal");
     if (modal) {
       modal.remove();
     }
   };
 
-  window.saveManagerRatingImmediately = async function(goalId, rating) {
-    console.log("Saving manager rating immediately for goal:", goalId, "Rating:", rating);
+  window.saveManagerRatingImmediately = async function (goalId, rating) {
+    console.log(
+      "Saving manager rating immediately for goal:",
+      goalId,
+      "Rating:",
+      rating
+    );
 
     try {
-      const response = await fetch(`http://localhost:3001/api/goals/${goalId}/manager-rating`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          manager_rating: parseInt(rating)
-        })
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/goals/${goalId}/manager-rating`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            manager_rating: parseInt(rating),
+          }),
+        }
+      );
 
       if (response.ok) {
         console.log("Manager rating saved successfully");
@@ -330,7 +346,10 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       }
     } catch (error) {
       console.error("Error saving manager rating:", error);
-      alert("Error saving manager rating: " + (error instanceof Error ? error.message : "Unknown error"));
+      alert(
+        "Error saving manager rating: " +
+          (error instanceof Error ? error.message : "Unknown error")
+      );
     }
   };
 
@@ -366,14 +385,14 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   };
 
   // Navigation function for pills
-  window.navigateToPhase = function(phase) {
-    console.log('Navigating to phase:', phase);
-    
-    if (phase === 'build-plan') {
-      window.location.href = '/goals';
-    } else if (phase === 'mid-year') {
-      window.location.href = '/midyear';
-    } else if (phase === 'end-of-year') {
+  window.navigateToPhase = function (phase) {
+    console.log("Navigating to phase:", phase);
+
+    if (phase === "build-plan") {
+      window.location.href = "/goals";
+    } else if (phase === "mid-year") {
+      window.location.href = "/midyear";
+    } else if (phase === "end-of-year") {
       // Already on end-of-year page, just reload if needed
       return;
     }
@@ -414,7 +433,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
   // Load goals data when page loads
   document.addEventListener("DOMContentLoaded", loadGoalsData);
-  
+
   // Also load immediately if DOM is already ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", loadGoalsData);

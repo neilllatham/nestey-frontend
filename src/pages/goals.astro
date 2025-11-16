@@ -668,16 +668,16 @@ const title = "Annual Goals";
   });
 
   // Navigation function for pills
-  window.navigateToPhase = function(phase) {
-    console.log('Navigating to phase:', phase);
-    
-    if (phase === 'build-plan') {
+  window.navigateToPhase = function (phase) {
+    console.log("Navigating to phase:", phase);
+
+    if (phase === "build-plan") {
       // Already on build plan page, just reload if needed
       return;
-    } else if (phase === 'mid-year') {
-      window.location.href = '/midyear';
-    } else if (phase === 'end-of-year') {
-      window.location.href = '/endyear';
+    } else if (phase === "mid-year") {
+      window.location.href = "/midyear";
+    } else if (phase === "end-of-year") {
+      window.location.href = "/endyear";
     }
   };
 
