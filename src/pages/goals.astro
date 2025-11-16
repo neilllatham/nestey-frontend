@@ -270,19 +270,26 @@ const title = "Annual Goals";
 
   window.deleteGoal = async function (goalId) {
     console.log("Deleting goal with ID:", goalId);
-    
+
     // Show confirmation dialog
-    if (!confirm("Are you sure you want to delete this goal? This action cannot be undone.")) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this goal? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/goals/${goalId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `http://localhost:3001/api/goals/${goalId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       console.log("Delete response status:", response.status);
 
