@@ -100,6 +100,9 @@ body {
   transition: all 0.15s ease;
 }
 .pill:hover { border-color: var(--blue-primary); color: var(--blue-primary); }
+.pill.active { background: var(--blue-primary); color: white; border-color: var(--blue-primary); }
+.pill.disabled { opacity: 0.5; cursor: not-allowed; }
+.pill.disabled:hover { border-color: var(--gray-200); color: inherit; }
 .kpi {
   display: flex; justify-content: space-between;
   padding: 0.5rem 1rem; background: var(--gray-200);
