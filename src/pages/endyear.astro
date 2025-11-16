@@ -70,23 +70,35 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       <h3>My Overall Comments & Rating</h3>
       <div id="myOverallSection">
         <div style="margin-top: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;"
+          >
             <h4 style="margin: 0;">Overall Comments</h4>
-            <button class="btn btn-sm btn-outline" onclick="toggleMyOverallCommentsEdit()" id="myCommentsEditBtn">
+            <button
+              class="btn btn-sm btn-outline"
+              onclick="toggleMyOverallCommentsEdit()"
+              id="myCommentsEditBtn"
+            >
               Edit
             </button>
           </div>
-          <textarea 
-            id="myOverallComments" 
+          <textarea
+            id="myOverallComments"
             placeholder="Share your overall thoughts on this review period..."
-            style="width: 100%; min-height: 120px; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 6px; font-family: inherit; resize: none; overflow: hidden; background: var(--gray-50);" 
-            readonly
-          ></textarea>
+            style="width: 100%; min-height: 120px; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 6px; font-family: inherit; resize: none; overflow: hidden; background: var(--gray-50);"
+            readonly></textarea>
         </div>
         <div style="margin-top: 1rem;">
           <h4 style="margin-bottom: 0.5rem;">Overall Self-Rating</h4>
-          <div id="myOverallRating" style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); margin-bottom: 0.5rem;">Not rated</div>
-          <button class="btn btn-sm btn-primary" onclick="rateOverallSelf()">Rate Overall Performance</button>
+          <div
+            id="myOverallRating"
+            style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); margin-bottom: 0.5rem;"
+          >
+            Not rated
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="rateOverallSelf()"
+            >Rate Overall Performance</button
+          >
         </div>
       </div>
     </div>
@@ -96,23 +108,36 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       <h3>Manager Overall Comments & Rating</h3>
       <div id="managerOverallSection">
         <div style="margin-top: 1rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <div
+            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;"
+          >
             <h4 style="margin: 0;">Manager Comments</h4>
-            <button class="btn btn-sm btn-outline" onclick="toggleManagerOverallCommentsEdit()" id="managerCommentsEditBtn">
+            <button
+              class="btn btn-sm btn-outline"
+              onclick="toggleManagerOverallCommentsEdit()"
+              id="managerCommentsEditBtn"
+            >
               Edit
             </button>
           </div>
-          <textarea 
-            id="managerOverallComments" 
+          <textarea
+            id="managerOverallComments"
             placeholder="Manager's overall assessment will appear here..."
-            style="width: 100%; min-height: 120px; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 6px; font-family: inherit; resize: none; overflow: hidden; background: var(--gray-50);" 
-            readonly
-          ></textarea>
+            style="width: 100%; min-height: 120px; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: 6px; font-family: inherit; resize: none; overflow: hidden; background: var(--gray-50);"
+            readonly></textarea>
         </div>
         <div style="margin-top: 1rem;">
           <h4 style="margin-bottom: 0.5rem;">Manager Overall Rating</h4>
-          <div id="managerOverallRating" style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); margin-bottom: 0.5rem;">Pending</div>
-          <button class="btn btn-sm btn-primary" onclick="rateOverallAsManager()">Rate as Manager</button>
+          <div
+            id="managerOverallRating"
+            style="font-size: 1rem; font-weight: 600; color: var(--blue-primary); margin-bottom: 0.5rem;"
+          >
+            Pending
+          </div>
+          <button
+            class="btn btn-sm btn-primary"
+            onclick="rateOverallAsManager()">Rate as Manager</button
+          >
         </div>
       </div>
     </div>
@@ -153,42 +178,54 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
       // Show rating scale
       displayRatingScale(data.ratingScale || []);
-      
+
       // Display overall comments and ratings immediately
       console.log("Setting up overall data with:", data.reviewData);
-      
+
       // Direct and immediate approach
-      const empRatingEl = document.getElementById('myOverallRating');
-      const mgmtRatingEl = document.getElementById('managerOverallRating');
-      
+      const empRatingEl = document.getElementById("myOverallRating");
+      const mgmtRatingEl = document.getElementById("managerOverallRating");
+
       if (empRatingEl) {
         const empRating = data.reviewData?.employee_overall_rating;
         console.log("Employee rating value:", empRating);
-        empRatingEl.textContent = (empRating !== null && empRating !== undefined) ? String(empRating) : "Not rated";
-        console.log("Employee rating element now shows:", empRatingEl.textContent);
+        empRatingEl.textContent =
+          empRating !== null && empRating !== undefined
+            ? String(empRating)
+            : "Not rated";
+        console.log(
+          "Employee rating element now shows:",
+          empRatingEl.textContent
+        );
       }
-      
+
       if (mgmtRatingEl) {
         const mgmtRating = data.reviewData?.manager_overall_rating;
         console.log("Manager rating value:", mgmtRating);
-        mgmtRatingEl.textContent = (mgmtRating !== null && mgmtRating !== undefined) ? String(mgmtRating) : "Pending";
-        console.log("Manager rating element now shows:", mgmtRatingEl.textContent);
+        mgmtRatingEl.textContent =
+          mgmtRating !== null && mgmtRating !== undefined
+            ? String(mgmtRating)
+            : "Pending";
+        console.log(
+          "Manager rating element now shows:",
+          mgmtRatingEl.textContent
+        );
       }
-      
+
       // Set up comments
-      const empCommentsEl = document.getElementById('myOverallComments');
-      const mgmtCommentsEl = document.getElementById('managerOverallComments');
-      
+      const empCommentsEl = document.getElementById("myOverallComments");
+      const mgmtCommentsEl = document.getElementById("managerOverallComments");
+
       if (empCommentsEl) {
-        empCommentsEl.value = data.reviewData?.employee_overall_comments || '';
+        empCommentsEl.value = data.reviewData?.employee_overall_comments || "";
         autoResizeTextarea(empCommentsEl);
       }
-      
+
       if (mgmtCommentsEl) {
-        mgmtCommentsEl.value = data.reviewData?.manager_overall_comments || '';
+        mgmtCommentsEl.value = data.reviewData?.manager_overall_comments || "";
         autoResizeTextarea(mgmtCommentsEl);
       }
-      
+
       setupOverallCommentsHandlers();
     } catch (error) {
       console.error("Error loading goals data:", error);
@@ -348,48 +385,48 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
     mySection.innerHTML = html;
   }
 
-
-
   // Auto-resize textarea function
   function autoResizeTextarea(textarea) {
     if (!textarea) return;
-    
+
     // Reset height to recalculate
-    textarea.style.height = 'auto';
-    
+    textarea.style.height = "auto";
+
     // Set height to scroll height (content height)
     const newHeight = Math.max(120, textarea.scrollHeight); // Minimum 120px
-    textarea.style.height = newHeight + 'px';
+    textarea.style.height = newHeight + "px";
   }
 
   function setupOverallCommentsHandlers() {
-    const myCommentsTextarea = document.getElementById('myOverallComments');
-    const managerCommentsTextarea = document.getElementById('managerOverallComments');
-    
+    const myCommentsTextarea = document.getElementById("myOverallComments");
+    const managerCommentsTextarea = document.getElementById(
+      "managerOverallComments"
+    );
+
     if (myCommentsTextarea) {
       // Save on blur (when user clicks out of the textarea)
-      myCommentsTextarea.addEventListener('blur', async function() {
+      myCommentsTextarea.addEventListener("blur", async function () {
         if (!myCommentsTextarea.readOnly) {
           await saveEmployeeOverallComments(myCommentsTextarea.value);
         }
       });
-      
+
       // Auto-resize on input
-      myCommentsTextarea.addEventListener('input', function() {
+      myCommentsTextarea.addEventListener("input", function () {
         autoResizeTextarea(this);
       });
     }
-    
+
     if (managerCommentsTextarea) {
       // Save manager comments on blur
-      managerCommentsTextarea.addEventListener('blur', async function() {
+      managerCommentsTextarea.addEventListener("blur", async function () {
         if (!managerCommentsTextarea.readOnly) {
           await saveManagerOverallComments(managerCommentsTextarea.value);
         }
       });
-      
+
       // Auto-resize on input
-      managerCommentsTextarea.addEventListener('input', function() {
+      managerCommentsTextarea.addEventListener("input", function () {
         autoResizeTextarea(this);
       });
     }
@@ -398,7 +435,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   async function saveEmployeeOverallComments(comments) {
     try {
       console.log("Saving employee overall comments:", comments);
-      
+
       const response = await fetch(
         `http://localhost:3001/api/goals/overall-employee-comments`,
         {
@@ -642,43 +679,43 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
   // Edit toggle functions for overall comments
   window.toggleMyOverallCommentsEdit = function () {
-    const textarea = document.getElementById('myOverallComments');
-    const button = document.getElementById('myCommentsEditBtn');
-    
+    const textarea = document.getElementById("myOverallComments");
+    const button = document.getElementById("myCommentsEditBtn");
+
     if (textarea && button) {
       if (textarea.readOnly) {
         // Enable editing
         textarea.readOnly = false;
-        textarea.style.background = 'white';
-        button.textContent = 'Save';
+        textarea.style.background = "white";
+        button.textContent = "Save";
         textarea.focus();
       } else {
         // Save and disable editing
         saveEmployeeOverallComments(textarea.value);
         textarea.readOnly = true;
-        textarea.style.background = 'var(--gray-50)';
-        button.textContent = 'Edit';
+        textarea.style.background = "var(--gray-50)";
+        button.textContent = "Edit";
       }
     }
   };
 
   window.toggleManagerOverallCommentsEdit = function () {
-    const textarea = document.getElementById('managerOverallComments');
-    const button = document.getElementById('managerCommentsEditBtn');
-    
+    const textarea = document.getElementById("managerOverallComments");
+    const button = document.getElementById("managerCommentsEditBtn");
+
     if (textarea && button) {
       if (textarea.readOnly) {
         // Enable editing
         textarea.readOnly = false;
-        textarea.style.background = 'white';
-        button.textContent = 'Save';
+        textarea.style.background = "white";
+        button.textContent = "Save";
         textarea.focus();
       } else {
         // Save and disable editing
         saveManagerOverallComments(textarea.value);
         textarea.readOnly = true;
-        textarea.style.background = 'var(--gray-50)';
-        button.textContent = 'Edit';
+        textarea.style.background = "var(--gray-50)";
+        button.textContent = "Edit";
       }
     }
   };
@@ -686,7 +723,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   async function saveManagerOverallComments(comments) {
     try {
       console.log("Saving manager overall comments:", comments);
-      
+
       const response = await fetch(
         `http://localhost:3001/api/goals/overall-manager-comments`,
         {
@@ -715,27 +752,31 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   // Overall rating functions
   window.rateOverallSelf = function () {
     console.log("Opening overall self-rating modal");
-    
+
     // Create rating modal for overall self-rating
     const ratingScale = window.goalsData?.ratingScale || [
       { rating_value: 1, rating_label: "Does Not Meet Expectations" },
       { rating_value: 2, rating_label: "Partially Meets Expectations" },
       { rating_value: 3, rating_label: "Meets Expectations" },
       { rating_value: 4, rating_label: "Exceeds Expectations" },
-      { rating_value: 5, rating_label: "Outstanding" }
+      { rating_value: 5, rating_label: "Outstanding" },
     ];
-    
+
     const modalHtml = `
       <div id="overallSelfRatingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
         <div style="background: white; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%;">
           <h3 style="margin-bottom: 1rem;">Overall Self-Rating</h3>
           <div style="margin-bottom: 1rem;">
-            ${ratingScale.map(option => `
+            ${ratingScale
+              .map(
+                (option) => `
               <label style="display: block; margin-bottom: 0.5rem; cursor: pointer;">
                 <input type="radio" name="overallSelfRating" value="${option.rating_value}" style="margin: 0;" onchange="saveOverallSelfRating(${option.rating_value})">
                 <span style="margin-left: 0.5rem;">${option.rating_value} - ${option.rating_label}</span>
               </label>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
           <div style="text-align: right;">
             <button type="button" class="btn btn-outline" onclick="closeOverallSelfRatingModal()">Close</button>
@@ -743,8 +784,8 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </div>
       </div>
     `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
   };
 
   window.closeOverallSelfRatingModal = function () {
@@ -757,7 +798,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   window.saveOverallSelfRating = async function (rating) {
     try {
       console.log("Saving overall self rating:", rating);
-      
+
       const response = await fetch(
         `http://localhost:3001/api/goals/overall-employee-rating`,
         {
@@ -774,10 +815,10 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
       if (response.ok) {
         console.log("Overall self rating saved successfully");
-        
+
         // Close modal
         closeOverallSelfRatingModal();
-        
+
         // Reload to get updated data
         loadGoalsData();
       } else {
@@ -789,34 +830,38 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       console.error("Error saving overall self rating:", error);
       alert(
         "Error saving overall self rating: " +
-        (error.message || "Unknown error")
+          (error.message || "Unknown error")
       );
     }
   };
 
   window.rateOverallAsManager = function () {
     console.log("Opening overall manager rating modal");
-    
+
     // Create rating modal for overall manager rating
     const ratingScale = window.goalsData?.ratingScale || [
       { rating_value: 1, rating_label: "Does Not Meet Expectations" },
       { rating_value: 2, rating_label: "Partially Meets Expectations" },
       { rating_value: 3, rating_label: "Meets Expectations" },
       { rating_value: 4, rating_label: "Exceeds Expectations" },
-      { rating_value: 5, rating_label: "Outstanding" }
+      { rating_value: 5, rating_label: "Outstanding" },
     ];
-    
+
     const modalHtml = `
       <div id="overallManagerRatingModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000;">
         <div style="background: white; padding: 2rem; border-radius: 10px; max-width: 500px; width: 90%;">
           <h3 style="margin-bottom: 1rem;">Overall Manager Rating</h3>
           <div style="margin-bottom: 1rem;">
-            ${ratingScale.map(option => `
+            ${ratingScale
+              .map(
+                (option) => `
               <label style="display: block; margin-bottom: 0.5rem; cursor: pointer;">
                 <input type="radio" name="overallManagerRating" value="${option.rating_value}" style="margin: 0;" onchange="saveOverallManagerRating(${option.rating_value})">
                 <span style="margin-left: 0.5rem;">${option.rating_value} - ${option.rating_label}</span>
               </label>
-            `).join('')}
+            `
+              )
+              .join("")}
           </div>
           <div style="text-align: right;">
             <button type="button" class="btn btn-outline" onclick="closeOverallManagerRatingModal()">Close</button>
@@ -824,8 +869,8 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </div>
       </div>
     `;
-    
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
+
+    document.body.insertAdjacentHTML("beforeend", modalHtml);
   };
 
   window.closeOverallManagerRatingModal = function () {
@@ -838,7 +883,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   window.saveOverallManagerRating = async function (rating) {
     try {
       console.log("Saving overall manager rating:", rating);
-      
+
       const response = await fetch(
         `http://localhost:3001/api/goals/overall-manager-rating`,
         {
@@ -855,10 +900,10 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
       if (response.ok) {
         console.log("Overall manager rating saved successfully");
-        
+
         // Close modal
         closeOverallManagerRatingModal();
-        
+
         // Reload to get updated data
         loadGoalsData();
       } else {
@@ -870,7 +915,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       console.error("Error saving overall manager rating:", error);
       alert(
         "Error saving overall manager rating: " +
-        (error.message || "Unknown error")
+          (error.message || "Unknown error")
       );
     }
   };
