@@ -55,15 +55,21 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       // Display error in all sections
       const errorMessage =
         '<div style="color: #dc2626; text-align: center; padding: 1rem;">Unable to load information. Please try again later.</div>';
-      document.getElementById("basicInfo").innerHTML = errorMessage;
-      document.getElementById("employmentInfo").innerHTML = errorMessage;
-      document.getElementById("orgInfo").innerHTML = errorMessage;
+      const basicInfo = document.getElementById("basicInfo");
+      const employmentInfo = document.getElementById("employmentInfo");
+      const orgInfo = document.getElementById("orgInfo");
+      
+      if (basicInfo) basicInfo.innerHTML = errorMessage;
+      if (employmentInfo) employmentInfo.innerHTML = errorMessage;
+      if (orgInfo) orgInfo.innerHTML = errorMessage;
     }
   }
 
-  function displayPersonalInfo(data) {
+  function displayPersonalInfo(data: any) {
     // Basic Information
-    document.getElementById("basicInfo").innerHTML = `
+    const basicInfoEl = document.getElementById("basicInfo");
+    if (basicInfoEl) {
+      basicInfoEl.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem;">
         <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
           <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Employee Number</label>
@@ -79,9 +85,12 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </div>
       </div>
     `;
+    }
 
     // Employment Details
-    document.getElementById("employmentInfo").innerHTML = `
+    const employmentInfoEl = document.getElementById("employmentInfo");
+    if (employmentInfoEl) {
+      employmentInfoEl.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem;">
         <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
           <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Job Title</label>
@@ -101,9 +110,12 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </div>
       </div>
     `;
+    }
 
     // Organizational Information
-    document.getElementById("orgInfo").innerHTML = `
+    const orgInfoEl = document.getElementById("orgInfo");
+    if (orgInfoEl) {
+      orgInfoEl.innerHTML = `
       <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 0.5rem;">
         <div style="padding: 1rem; border: 1px solid var(--gray-200); border-radius: 10px; background: var(--gray-50);">
           <label style="font-size: 0.75rem; text-transform: uppercase; color: var(--gray-600); font-weight: 500; margin-bottom: 0.3rem; display: block;">Department</label>
@@ -120,6 +132,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         </div>
       </div>
     `;
+    }
   }
 
   // Load personal info when page loads
