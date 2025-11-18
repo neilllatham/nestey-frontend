@@ -1,0 +1,492 @@
+---
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+---
+
+<DefaultLayout title="Organization">
+  <section class="workspace-header">
+    <h1>Organization</h1>
+  </section>
+
+  <section class="workspace-content">
+    <div class="org-chart-container">
+      <!-- Manager Level -->
+      <div class="org-level manager-level">
+        <div class="org-card manager-card" id="managerCard">
+          <div class="org-card-content">
+            <div class="profile-section">
+              <div class="avatar">
+                <span class="avatar-initials" id="managerInitials">--</span>
+              </div>
+              <div class="profile-info">
+                <h3 class="name" id="managerName">Loading...</h3>
+                <p class="title" id="managerTitle">Manager</p>
+                <p class="department" id="managerDepartment">--</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Line -->
+      <div class="org-connector">
+        <div class="vertical-line"></div>
+      </div>
+
+      <!-- My Level -->
+      <div class="org-level my-level">
+        <div class="org-card my-card" id="myCard">
+          <div class="org-card-content">
+            <div class="profile-section">
+              <div class="avatar">
+                <span class="avatar-initials" id="myInitials">--</span>
+              </div>
+              <div class="profile-info">
+                <h3 class="name" id="myName">Loading...</h3>
+                <p class="title" id="myTitle">--</p>
+                <p class="department" id="myDepartment">--</p>
+              </div>
+            </div>
+            <div class="org-badge">You</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Connection Line for Direct Reports -->
+      <div class="org-connector" id="reportsConnector" style="display: none;">
+        <div class="vertical-line"></div>
+        <div class="horizontal-line" id="horizontalLine"></div>
+      </div>
+
+      <!-- Direct Reports Level -->
+      <div
+        class="org-level reports-level"
+        id="reportsLevel"
+        style="display: none;"
+      >
+        <div class="reports-container" id="reportsContainer">
+          <!-- Direct reports will be populated here -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <style is:global>
+    .org-chart-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 600px;
+      background: var(--gray-50);
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+
+    .org-level {
+      display: flex;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+
+    .org-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+      width: 360px; /* widened by 20% */
+      /* dynamic height; unified via JS after render */
+      position: relative;
+    }
+
+    .org-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .my-card {
+      border: 2px solid var(--blue-primary);
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+    }
+
+    .org-card-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--blue-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .avatar-initials {
+      color: white;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .org-card .name {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--gray-900);
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .org-card .title {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.95rem;
+      color: var(--gray-700);
+      font-weight: 500;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .org-card .department {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .org-badge {
+      position: absolute;
+      top: -8px;
+      right: 12px;
+      background: var(--blue-primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .org-connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 40px;
+    }
+
+    .vertical-line {
+      width: 2px;
+      height: 40px;
+      background: var(--gray-200);
+    }
+
+    .horizontal-line {
+      width: 100%;
+      height: 2px;
+      background: var(--gray-200);
+      margin-top: -1px;
+    }
+
+    .reports-container {
+        display: flex; /* default before JS enhancement */
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 1000px;
+      }
+
+      /* Grid layouts applied dynamically based on direct report count */
+      .reports-container.report-grid-2, .reports-container.report-grid-3 {
+        display: grid;
+        justify-content: center;
+        align-content: start;
+        width: 100%;
+      }
+      .reports-container.report-grid-2 {
+        grid-template-columns: repeat(2, 360px);
+        gap: 1.25rem 2rem;
+      }
+      .reports-container.report-grid-3 {
+        grid-template-columns: repeat(3, 360px);
+        gap: 1.25rem 2rem;
+    }
+
+    .manager-card .avatar {
+      background: var(--gray-600);
+    }
+
+    .direct-report-card .avatar {
+      background: var(--blue-accent);
+    }
+
+    .reports-level .org-card { width: 360px; }
+
+    .loading {
+      color: var(--gray-400);
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .org-chart-container {
+        padding: 1rem;
+      }
+
+      .org-card { width: 312px; padding: 1rem; }
+
+      .reports-container {
+          gap: 1rem;
+        }
+        .reports-container.report-grid-2,
+        .reports-container.report-grid-3 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          justify-content: center;
+          gap: 0.75rem 1rem;
+        }
+        /* If very narrow, allow wrap to single column */
+        @media (max-width: 520px) {
+          .reports-container.report-grid-2,
+          .reports-container.report-grid-3 {
+            grid-template-columns: 1fr;
+          }
+        }
+      }
+
+      .reports-level .org-card { width: 312px; }
+    }
+  </style>
+
+  <script>
+    // @ts-nocheck
+    // Sample data - replace with actual API calls
+    const EMPLOYEE_ID = 301; // Current employee ID
+
+    // Real org data for employee 301
+    const orgData = {
+      employee: {
+        id: 301,
+        name: "Nader Logos",
+        title: "Chief Customer Officer",
+        department: "Customer Service",
+        function: "Customer Success",
+      },
+      manager: {
+        name: "Amanda Thompson",
+        title: "Chief Executive Officer",
+        department: "Executive",
+      },
+      directReports: [
+        // Direct reports will be loaded from API when available
+      ],
+    };
+
+    function getInitials(name) {
+      if (!name) return "--";
+      return name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase();
+    }
+
+    async function loadOrgChart() {
+      try {
+        // Official endpoint
+        const resp = await fetch(`http://localhost:3001/api/org/employee/${EMPLOYEE_ID}`);
+        const orgData = resp.ok ? await resp.json() : null;
+
+        // Guard: if API did not return expected payload, use static fallback
+        if (!orgData || !orgData.success || !orgData.employee) {
+          loadStaticOrgData();
+          return;
+        }
+
+        if (orgData.success && orgData.employee) {
+          // Load my information
+          document.getElementById("myName").textContent = orgData.employee.name;
+          document.getElementById("myTitle").textContent =
+            orgData.employee.title;
+          document.getElementById("myDepartment").textContent =
+            orgData.employee.department || "Customer Service";
+          document.getElementById("myInitials").textContent = getInitials(
+            orgData.employee.name
+          );
+
+          // Load manager information
+          if (orgData.manager) {
+            document.getElementById("managerName").textContent =
+              orgData.manager.name;
+            document.getElementById("managerTitle").textContent =
+              orgData.manager.title;
+            document.getElementById("managerDepartment").textContent =
+              orgData.manager.department || "Executive";
+            document.getElementById("managerInitials").textContent =
+              getInitials(orgData.manager.name);
+          } else {
+            document.getElementById("managerName").textContent = "No Manager";
+            document.getElementById("managerTitle").textContent = "";
+            document.getElementById("managerDepartment").textContent = "";
+            document.getElementById("managerInitials").textContent = "--";
+          }
+
+          // Load direct reports
+          if (orgData.directReports && orgData.directReports.length > 0) {
+            document.getElementById("reportsConnector").style.display = "flex";
+            document.getElementById("reportsLevel").style.display = "flex";
+
+            const reportsContainer =
+              document.getElementById("reportsContainer");
+            reportsContainer.innerHTML = "";
+
+            orgData.directReports.forEach((report) => {
+              const reportCard = document.createElement("div");
+              reportCard.className = "org-card direct-report-card";
+              reportCard.innerHTML = `
+                <div class="org-card-content">
+                  <div class="profile-section">
+                    <div class="avatar">
+                      <span class="avatar-initials">${getInitials(report.name)}</span>
+                    </div>
+                    <div class="profile-info">
+                      <h3 class="name">${report.name}</h3>
+                      <p class="title">${report.title}</p>
+                      <p class="department">${report.department || "Customer Service"}</p>
+                    </div>
+                  </div>
+                </div>
+              `;
+              reportsContainer.appendChild(reportCard);
+            });
+            // Force exactly two columns layout
+            reportsContainer.classList.add("report-grid-2");
+
+            // Adjust connector width for two columns
+            requestAnimationFrame(() => {
+              const horizontalLine = document.getElementById("horizontalLine");
+              // Measure actual card width (desktop or mobile) for connector sizing
+              const firstCardEl = reportsContainer.querySelector('.org-card');
+              const cardWidth = firstCardEl ? firstCardEl.offsetWidth : 360;
+              const gapX = 32; // matches CSS gap (approx 2rem)
+              const totalWidth = 2 * cardWidth + gapX; // two cards plus one gap
+              horizontalLine.style.width = `${totalWidth}px`;
+              // Normalize heights across direct report cards (largest sets the height)
+              unifyLevelHeights(reportsContainer);
+            });
+          } else {
+            // hide connectors if no reports
+            document.getElementById("reportsConnector").style.display = "none";
+            document.getElementById("reportsLevel").style.display = "none";
+          }
+        }
+      } catch (error) {
+        console.error("Error loading org chart data:", error);
+        // Fallback to static data if API fails
+        loadStaticOrgData();
+      }
+
+
+    }
+
+    function loadStaticOrgData() {
+      // Fallback static data loading
+      document.getElementById("myName").textContent = orgData.employee.name;
+      document.getElementById("myTitle").textContent = orgData.employee.title;
+      document.getElementById("myDepartment").textContent =
+        orgData.employee.department;
+      document.getElementById("myInitials").textContent = getInitials(
+        orgData.employee.name
+      );
+
+      document.getElementById("managerName").textContent = orgData.manager.name;
+      document.getElementById("managerTitle").textContent =
+        orgData.manager.title;
+      document.getElementById("managerDepartment").textContent =
+        orgData.manager.department;
+      document.getElementById("managerInitials").textContent = getInitials(
+        orgData.manager.name
+      );
+    }
+
+    function unifyLevelHeights(container) {
+      const cards = container.querySelectorAll('.org-card');
+      if (!cards.length) return;
+      // Reset heights to natural size first
+      cards.forEach(c => { c.style.height = 'auto'; });
+      // Measure max
+      let max = 0;
+      cards.forEach(c => { const h = c.offsetHeight; if (h > max) max = h; });
+      // Apply uniform height
+      cards.forEach(c => { c.style.height = max + 'px'; });
+    }
+    // Re-normalize on resize (debounced)
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const reportsContainer = document.getElementById('reportsContainer');
+        if (reportsContainer && reportsContainer.classList.contains('report-grid-2')) {
+          unifyLevelHeights(reportsContainer);
+        }
+      }, 120);
+    });
+
+    // Load org chart when page loads
+    document.addEventListener("DOMContentLoaded", loadOrgChart);
+
+    // Future: Replace mock data with actual API calls
+    /*
+    async function loadEmployeeData() {
+      try {
+        const response = await fetch(`http://localhost:3001/api/organization/employee/${EMPLOYEE_ID}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error loading employee data:', error);
+        return null;
+      }
+    }
+
+    async function loadManagerData(managerId) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/organization/employee/${managerId}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error loading manager data:', error);
+        return null;
+      }
+    }
+
+    async function loadDirectReports(employeeId) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/organization/direct-reports/${employeeId}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error loading direct reports:', error);
+        return [];
+      }
+    }
+    */
+  </script>
+</DefaultLayout>
