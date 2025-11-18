@@ -23,6 +23,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
                 <p class="department" id="managerDepartment">--</p>
               </div>
             </div>
+            <span class="report-count" id="managerReportCount" title="Direct reports">--</span>
           </div>
         </div>
       </div>
@@ -47,6 +48,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
               </div>
             </div>
             <div class="org-badge">You</div>
+            <span class="report-count" id="myReportCount" title="Direct reports">--</span>
           </div>
         </div>
       </div>
@@ -200,14 +202,14 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
     .vertical-line {
       width: 2px;
       height: 40px;
-      background: var(--gray-200);
+      background: var(--gray-500);
     }
 
     .horizontal-line {
       width: 100%;
       height: 2px;
-      background: var(--gray-200);
-      margin-top: -1px;
+      background: var(--gray-500);
+      margin: -1px auto 0;
     }
 
     .reports-container {
@@ -234,6 +236,20 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         gap: 1.25rem 2rem;
     }
 
+    /* Add per-card connector from horizontal line to each direct report */
+    .direct-report-card {
+      position: relative;
+    }
+    .direct-report-card::before {
+      content: "";
+      position: absolute;
+      top: -16px;
+      left: calc(50% - 1px);
+      width: 2px;
+      height: 16px;
+      background: var(--gray-500);
+    }
+
     .manager-card .avatar {
       background: var(--gray-600);
     }
@@ -242,12 +258,34 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       background: var(--blue-accent);
     }
 
+    .reports-level { margin-top: 16px; }
     .reports-level .org-card { width: 360px; }
 
     .loading {
       color: var(--gray-400);
       font-style: italic;
     }
+    /* Direct report count badge bottom-right */
+    .report-count {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      background: var(--gray-600);
+      color: #fff;
+      font-size: 0.60rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      letter-spacing: .5px;
+      line-height: 1;
+      pointer-events: none;
+      display: inline-block;
+      min-width: 18px;
+      text-align: center;
+    }
+    .my-card .report-count { background: var(--blue-primary); }
+    .direct-report-card .report-count { background: var(--blue-accent); color: var(--gray-900); }
+    .manager-card .report-count { background: var(--gray-700); }
 
     @media (max-width: 768px) {
       .org-chart-container {
@@ -275,6 +313,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         }
       }
 
+      .reports-level { margin-top: 16px; }
       .reports-level .org-card { width: 312px; }
     }
   </style>
@@ -364,6 +403,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
             orgData.directReports.forEach((report) => {
               const reportCard = document.createElement("div");
               reportCard.className = "org-card direct-report-card";
+              reportCard.dataset.employeeId = report.id;
               reportCard.innerHTML = `
                 <div class="org-card-content">
                   <div class="profile-section">
@@ -376,6 +416,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
                       <p class="department">${report.department || "Customer Service"}</p>
                     </div>
                   </div>
+                  <span class="report-count" title="Direct reports">--</span>
                 </div>
               `;
               reportsContainer.appendChild(reportCard);
@@ -394,11 +435,33 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
               horizontalLine.style.width = `${totalWidth}px`;
               // Normalize heights across direct report cards (largest sets the height)
               unifyLevelHeights(reportsContainer);
+              populateDirectReportCounts(orgData.directReports.map(r => r.id));
             });
           } else {
             // hide connectors if no reports
             document.getElementById("reportsConnector").style.display = "none";
             document.getElementById("reportsLevel").style.display = "none";
+          }
+
+          // Set counts for "You" card
+          const myCountEl = document.getElementById('myReportCount');
+          if (myCountEl) myCountEl.textContent = String(orgData.directReports.length);
+
+          // Fetch manager direct reports count
+          if (orgData.manager && orgData.manager.id) {
+            fetch(`http://localhost:3001/api/org/employee/${orgData.manager.id}`)
+              .then(r => r.ok ? r.json() : null)
+              .then(data => {
+                const mgrEl = document.getElementById('managerReportCount');
+                if (mgrEl) mgrEl.textContent = (data && data.success && data.directReports) ? data.directReports.length : '0';
+              })
+              .catch(() => {
+                const mgrEl = document.getElementById('managerReportCount');
+                if (mgrEl) mgrEl.textContent = '0';
+              });
+          } else {
+            const mgrEl = document.getElementById('managerReportCount');
+            if (mgrEl) mgrEl.textContent = '0';
           }
         }
       } catch (error) {
@@ -428,6 +491,10 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       document.getElementById("managerInitials").textContent = getInitials(
         orgData.manager.name
       );
+      const mgrEl = document.getElementById('managerReportCount');
+      const myEl = document.getElementById('myReportCount');
+      if (mgrEl) mgrEl.textContent = '0';
+      if (myEl) myEl.textContent = '0';
     }
 
     function unifyLevelHeights(container) {
@@ -440,6 +507,25 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       cards.forEach(c => { const h = c.offsetHeight; if (h > max) max = h; });
       // Apply uniform height
       cards.forEach(c => { c.style.height = max + 'px'; });
+    }
+    async function populateDirectReportCounts(ids) {
+      const container = document.getElementById('reportsContainer');
+      if (!container) return;
+      const promises = ids.map(id => fetch(`http://localhost:3001/api/org/employee/${id}`).then(r => r.ok ? r.json() : null).catch(() => null));
+      const results = await Promise.all(promises);
+      results.forEach((data, idx) => {
+        const id = ids[idx];
+        const card = container.querySelector(`.direct-report-card[data-employee-id='${id}']`);
+        if (!card) return;
+        const badge = card.querySelector('.report-count');
+        if (!badge) return;
+        if (data && data.success && Array.isArray(data.directReports)) {
+          badge.textContent = String(data.directReports.length);
+        } else {
+          badge.textContent = '0';
+        }
+      });
+      unifyLevelHeights(container);
     }
     // Re-normalize on resize (debounced)
     let resizeTimer;
