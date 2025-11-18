@@ -121,13 +121,20 @@ const title = "Annual Goals";
       console.error("Error loading goals:", error);
       const managerSection = document.getElementById("managerGoalsSection");
       const mySection = document.getElementById("myGoalsSection");
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
       if (managerSection) {
-        managerSection.innerHTML = '<div style="color: red;">Error loading manager goals: ' + errorMessage + "</div>";
+        managerSection.innerHTML =
+          '<div style="color: red;">Error loading manager goals: ' +
+          errorMessage +
+          "</div>";
       }
       if (mySection) {
-        mySection.innerHTML = '<div style="color: red;">Error loading goals: ' + errorMessage + "</div>";
+        mySection.innerHTML =
+          '<div style="color: red;">Error loading goals: ' +
+          errorMessage +
+          "</div>";
       }
     }
   }
