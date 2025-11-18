@@ -79,7 +79,10 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       min-height: 600px;
       background: var(--gray-50);
       border-radius: 12px;
-      margin: 1rem 0;
+      /* Center horizontally within grid */
+      grid-column: 1 / -1;
+      width: fit-content;
+      margin: 1rem auto;
     }
 
     .org-level {
