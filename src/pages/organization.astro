@@ -321,7 +321,8 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
   <script>
     // @ts-nocheck
     // Sample data - replace with actual API calls
-    const EMPLOYEE_ID = 301; // Current employee ID
+    const ROOT_EMPLOYEE_ID = 301; // Logged-in/root employee at initial center
+    let currentEmployeeId = ROOT_EMPLOYEE_ID; // Mutable focus employee
 
     // Real org data for employee 301
     const orgData = {
@@ -351,10 +352,11 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         .toUpperCase();
     }
 
-    async function loadOrgChart() {
+    async function loadOrgChart(targetEmployeeId = currentEmployeeId) {
       try {
-        // Official endpoint
-        const resp = await fetch(`http://localhost:3001/api/org/employee/${EMPLOYEE_ID}`);
+        currentEmployeeId = targetEmployeeId;
+        // Fetch organization for current focus employee
+        const resp = await fetch(`http://localhost:3001/api/org/employee/${currentEmployeeId}`);
         const orgData = resp.ok ? await resp.json() : null;
 
         // Guard: if API did not return expected payload, use static fallback
@@ -374,7 +376,11 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
             orgData.employee.name
           );
 
-          // Load manager information
+          // Toggle "You" badge only when viewing root employee
+          const youBadge = document.querySelector('#myCard .org-badge');
+          if (youBadge) youBadge.style.display = currentEmployeeId === ROOT_EMPLOYEE_ID ? 'block' : 'none';
+
+          // Load manager information (API already returns correct manager for focus employee)
           if (orgData.manager) {
             document.getElementById("managerName").textContent =
               orgData.manager.name;
@@ -384,11 +390,22 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
               orgData.manager.department || "Executive";
             document.getElementById("managerInitials").textContent =
               getInitials(orgData.manager.name);
+            // Enable drill-down on manager card
+            const managerCard = document.getElementById('managerCard');
+            if (managerCard) {
+              managerCard.dataset.employeeId = String(orgData.manager.id);
+              managerCard.style.cursor = 'pointer';
+            }
           } else {
             document.getElementById("managerName").textContent = "No Manager";
             document.getElementById("managerTitle").textContent = "";
             document.getElementById("managerDepartment").textContent = "";
             document.getElementById("managerInitials").textContent = "--";
+            const managerCard = document.getElementById('managerCard');
+            if (managerCard) {
+              delete managerCard.dataset.employeeId;
+              managerCard.style.cursor = 'default';
+            }
           }
 
           // Load direct reports
@@ -423,6 +440,17 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
             });
             // Force exactly two columns layout
             reportsContainer.classList.add("report-grid-2");
+
+            // Attach click handler to drill into a direct report
+            reportsContainer.querySelectorAll('.direct-report-card').forEach(card => {
+              card.style.cursor = 'pointer';
+              card.addEventListener('click', () => {
+                const id = parseInt(card.dataset.employeeId, 10);
+                if (!isNaN(id) && id !== currentEmployeeId) {
+                  loadOrgChart(id); // Re-center around selected direct report
+                }
+              });
+            });
 
             // Adjust connector width for two columns
             requestAnimationFrame(() => {
@@ -539,8 +567,18 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
       }, 120);
     });
 
-    // Load org chart when page loads
-    document.addEventListener("DOMContentLoaded", loadOrgChart);
+    // Initial load with root employee
+    document.addEventListener("DOMContentLoaded", () => loadOrgChart(ROOT_EMPLOYEE_ID));
+
+    // Single delegated handler for manager card clicks
+    document.addEventListener('click', (e) => {
+      const mgrCard = e.target.closest && e.target.closest('#managerCard');
+      if (!mgrCard) return;
+      const id = parseInt(mgrCard.dataset.employeeId || '', 10);
+      if (!isNaN(id) && id !== currentEmployeeId) {
+        loadOrgChart(id);
+      }
+    });
 
     // Future: Replace mock data with actual API calls
     /*
