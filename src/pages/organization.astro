@@ -226,6 +226,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
         justify-content: center;
         align-content: start;
         width: 100%;
+        margin-left: 47px;
       }
       .reports-container.report-grid-2 {
         grid-template-columns: repeat(2, 360px);
@@ -459,7 +460,7 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
               const firstCardEl = reportsContainer.querySelector('.org-card');
               const cardWidth = firstCardEl ? firstCardEl.offsetWidth : 360;
               const gapX = 32; // matches CSS gap (approx 2rem)
-              const totalWidth = 2 * cardWidth + gapX; // two cards plus one gap
+              const totalWidth = 1.16 * cardWidth + gapX; // two cards plus one gap
               horizontalLine.style.width = `${totalWidth}px`;
               // Normalize heights across direct report cards (largest sets the height)
               unifyLevelHeights(reportsContainer);
