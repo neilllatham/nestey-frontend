@@ -1,5 +1,5 @@
 ---
-const { title } = Astro.props;
+const { title, showChat = true } = Astro.props;
 import ChatPanel from "../components/ChatPanel.astro";
 ---
 
@@ -12,17 +12,219 @@ import ChatPanel from "../components/ChatPanel.astro";
     <link rel="stylesheet" href="/src/styles/site.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <aside class="nav">
-        <div class="brand">Nestey</div>
+    <header class="top-header">
+      <div class="header-left">
+        <button
+          class="hamburger-btn"
+          id="navToggle"
+          aria-label="Toggle navigation"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <a href="/">
+          <img src="/icons/nestey_300.png" alt="Nestey" class="brand-logo" />
+        </a>
+        <div class="brand-header">Nestey</div>
+      </div>
+      <div class="header-center"></div>
+      <div class="header-right">
+        <span class="user-name">Claudia Schmeler</span>
+        <div class="user-avatar">CS</div>
+      </div>
+    </header>
+
+    <div class="app-shell" id="appShell">
+      <aside class="nav" id="navSidebar">
         <nav>
-          <ul>
+          <ul class="nav-list">
             <li><a href="/" class="nav-item">Home</a></li>
-            <li><a href="/personal" class="nav-item">Personal</a></li>
-            <li><a href="/benefits" class="nav-item">Benefits</a></li>
-            <li><a href="/timeoff" class="nav-item">Time Off</a></li>
-            <li><a href="/goals" class="nav-item">Goals</a></li>
-            <li><a href="/organization" class="nav-item">Organization</a></li>
+
+            <li class="nav-section">
+              <button class="nav-item nav-section-toggle">
+                <span>My Info</span>
+                <svg
+                  class="nav-arrow"
+                  width="23"
+                  height="23"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 9 6 12 9"></polyline>
+                </svg>
+              </button>
+              <ul class="nav-submenu">
+                <li>
+                  <a href="/benefits" class="nav-item nav-subitem">Benefits</a>
+                </li>
+                <li>
+                  <a href="/career" class="nav-item nav-subitem">Career</a>
+                </li>
+                <li>
+                  <a href="/learning" class="nav-item nav-subitem">Learning</a>
+                </li>
+                <li>
+                  <a href="/personal" class="nav-item nav-subitem">Personal</a>
+                </li>
+                <li>
+                  <a href="/timeoff" class="nav-item nav-subitem">Time Off</a>
+                </li>
+                <li>
+                  <a href="/timereporting" class="nav-item nav-subitem"
+                    >Time Reporting</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-section">
+              <button class="nav-item nav-section-toggle">
+                <span>Performance</span>
+                <svg
+                  class="nav-arrow"
+                  width="23"
+                  height="23"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 9 6 12 9"></polyline>
+                </svg>
+              </button>
+              <ul class="nav-submenu">
+                <li><a href="/goals" class="nav-item nav-subitem">Goals</a></li>
+              </ul>
+            </li>
+
+            <li class="nav-section">
+              <button class="nav-item nav-section-toggle">
+                <span>Team</span>
+                <svg
+                  class="nav-arrow"
+                  width="23"
+                  height="23"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 9 6 12 9"></polyline>
+                </svg>
+              </button>
+              <ul class="nav-submenu">
+                <li>
+                  <a href="/calibration" class="nav-item nav-subitem"
+                    >Calibration</a>
+                </li>
+                <li>
+                  <a href="/collaboration" class="nav-item nav-subitem"
+                    >Collaboration</a>
+                </li>
+                <li>
+                  <a href="/feedback" class="nav-item nav-subitem">Feedback</a>
+                </li>
+                <li>
+                  <a href="/potential" class="nav-item nav-subitem"
+                    >Potential</a>
+                </li>
+                <li><a href="/pulse" class="nav-item nav-subitem">Pulse</a></li>
+                <li>
+                  <a href="/team-timeoff" class="nav-item nav-subitem"
+                    >Time Off</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-section">
+              <button class="nav-item nav-section-toggle">
+                <span>Talent</span>
+                <svg
+                  class="nav-arrow"
+                  width="23"
+                  height="23"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 9 6 12 9"></polyline>
+                </svg>
+              </button>
+              <ul class="nav-submenu">
+                <li>
+                  <a href="/budgeted" class="nav-item nav-subitem">Budgeted</a>
+                </li>
+                <li>
+                  <a href="/candidates" class="nav-item nav-subitem"
+                    >Candidates</a>
+                </li>
+                <li>
+                  <a href="/interview" class="nav-item nav-subitem"
+                    >Interview</a>
+                </li>
+                <li>
+                  <a href="/offers" class="nav-item nav-subitem">Offers</a>
+                </li>
+                <li><a href="/open" class="nav-item nav-subitem">Open</a></li>
+                <li>
+                  <a href="/screen" class="nav-item nav-subitem">Screen</a>
+                </li>
+                <li>
+                  <a href="/starts" class="nav-item nav-subitem">Starts</a>
+                </li>
+              </ul>
+            </li>
+
+            <li class="nav-section">
+              <button class="nav-item nav-section-toggle">
+                <span>Organization</span>
+                <svg
+                  class="nav-arrow"
+                  width="23"
+                  height="23"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 9 6 12 9"></polyline>
+                </svg>
+              </button>
+              <ul class="nav-submenu">
+                <li>
+                  <a href="/organization" class="nav-item nav-subitem"
+                    >Org Chart</a>
+                </li>
+                <li>
+                  <a href="/goal-alignment" class="nav-item nav-subitem"
+                    >Goal Alignment</a>
+                </li>
+              </ul>
+            </li>
           </ul>
         </nav>
       </aside>
@@ -31,11 +233,85 @@ import ChatPanel from "../components/ChatPanel.astro";
         <slot />
       </main>
 
-      <aside class="ai-pane">
-        <ChatPanel />
-      </aside>
+      {showChat && (
+        <aside class="ai-pane">
+          <ChatPanel />
+        </aside>
+      )}
     </div>
 
     <script type="module" src="/js/site.js"></script>
+    <script>
+      // Navigation toggle functionality
+      const navToggle = document.getElementById("navToggle");
+      const appShell = document.getElementById("appShell");
+
+      if (navToggle && appShell) {
+        navToggle.addEventListener("click", () => {
+          appShell.classList.toggle("nav-collapsed");
+        });
+      }
+
+      // Navigation section toggle functionality with persistence
+      const STORAGE_KEY = "nestey-nav-expanded";
+
+      // Load expanded sections from localStorage
+      function loadExpandedSections() {
+        try {
+          const expanded = JSON.parse(
+            localStorage.getItem(STORAGE_KEY) || "[]"
+          );
+          // More reliable approach
+          document.querySelectorAll(".nav-section").forEach((section) => {
+            const sectionName = section.querySelector(
+              ".nav-section-toggle span"
+            )?.textContent;
+            if (sectionName && expanded.includes(sectionName)) {
+              section.classList.add("expanded");
+            }
+          });
+        } catch (e) {
+          console.error("Failed to load nav state", e);
+        }
+      }
+
+      // Save expanded sections to localStorage
+      function saveExpandedSections() {
+        const expanded = [];
+        document
+          .querySelectorAll(".nav-section.expanded")
+          .forEach((section) => {
+            const sectionName = section.querySelector(
+              ".nav-section-toggle span"
+            )?.textContent;
+            if (sectionName) {
+              expanded.push(sectionName);
+            }
+          });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(expanded));
+      }
+
+      // Initialize expanded state
+      loadExpandedSections();
+
+      document.querySelectorAll(".nav-section-toggle").forEach((toggle) => {
+        toggle.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const section = toggle.closest(".nav-section");
+          if (section) {
+            section.classList.toggle("expanded");
+            saveExpandedSections();
+          }
+        });
+      });
+
+      // Prevent section from collapsing when clicking submenu links
+      document.querySelectorAll(".nav-subitem").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.stopPropagation();
+        });
+      });
+    </script>
   </body>
 </html>
