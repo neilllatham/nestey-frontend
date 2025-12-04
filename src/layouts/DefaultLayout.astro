@@ -87,7 +87,8 @@ import ChatPanel from "../components/ChatPanel.astro";
                 </li>
                 <li>
                   <a href="/timereporting" class="nav-item nav-subitem"
-                    >Time Reporting</a>
+                    >Time Reporting</a
+                  >
                 </li>
               </ul>
             </li>
@@ -134,23 +135,26 @@ import ChatPanel from "../components/ChatPanel.astro";
               <ul class="nav-submenu">
                 <li>
                   <a href="/calibration" class="nav-item nav-subitem"
-                    >Calibration</a>
+                    >Calibration</a
+                  >
                 </li>
                 <li>
                   <a href="/collaboration" class="nav-item nav-subitem"
-                    >Collaboration</a>
+                    >Collaboration</a
+                  >
                 </li>
                 <li>
                   <a href="/feedback" class="nav-item nav-subitem">Feedback</a>
                 </li>
                 <li>
-                  <a href="/potential" class="nav-item nav-subitem"
-                    >Potential</a>
+                  <a href="/potential" class="nav-item nav-subitem">Potential</a
+                  >
                 </li>
                 <li><a href="/pulse" class="nav-item nav-subitem">Pulse</a></li>
                 <li>
                   <a href="/team-timeoff" class="nav-item nav-subitem"
-                    >Time Off</a>
+                    >Time Off</a
+                  >
                 </li>
               </ul>
             </li>
@@ -178,11 +182,12 @@ import ChatPanel from "../components/ChatPanel.astro";
                 </li>
                 <li>
                   <a href="/candidates" class="nav-item nav-subitem"
-                    >Candidates</a>
+                    >Candidates</a
+                  >
                 </li>
                 <li>
-                  <a href="/interview" class="nav-item nav-subitem"
-                    >Interview</a>
+                  <a href="/interview" class="nav-item nav-subitem">Interview</a
+                  >
                 </li>
                 <li>
                   <a href="/offers" class="nav-item nav-subitem">Offers</a>
@@ -217,11 +222,13 @@ import ChatPanel from "../components/ChatPanel.astro";
               <ul class="nav-submenu">
                 <li>
                   <a href="/organization" class="nav-item nav-subitem"
-                    >Org Chart</a>
+                    >Org Chart</a
+                  >
                 </li>
                 <li>
                   <a href="/goal-alignment" class="nav-item nav-subitem"
-                    >Goal Alignment</a>
+                    >Goal Alignment</a
+                  >
                 </li>
               </ul>
             </li>
@@ -233,11 +240,13 @@ import ChatPanel from "../components/ChatPanel.astro";
         <slot />
       </main>
 
-      {showChat && (
-        <aside class="ai-pane">
-          <ChatPanel />
-        </aside>
-      )}
+      {
+        showChat && (
+          <aside class="ai-pane">
+            <ChatPanel />
+          </aside>
+        )
+      }
     </div>
 
     <script type="module" src="/js/site.js"></script>
